@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<actionScriptProperties mainApplicationPath="index.mxml" projectUUID="1343a6fb-77fe-4f7b-8d71-c0a6e1d3ce49" version="6">
+  <compiler additionalCompilerArguments="-locale zh_CN" autoRSLOrdering="true" copyDependentFiles="true" fteInMXComponents="false" generateAccessible="true" htmlExpressInstall="true" htmlGenerate="true" htmlHistoryManagement="true" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderPath="bin-debug" sourceFolderPath="src" strict="true" targetPlayerVersion="0.0.0" useApolloConfig="false" useDebugRSLSwfs="true" verifyDigests="true" warn="true">
+    <compilerSourcePath/>
+    <libraryPath defaultLinkType="0">
+      <libraryPathEntry kind="4" path="">
+        <excludedEntries>
+          <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/flex.swc" useDefaultLinkType="false"/>
+        </excludedEntries>
+      </libraryPathEntry>
+      <libraryPathEntry kind="1" linkType="1" path="libs"/>
+      <libraryPathEntry kind="3" linkType="1" path="/FlexBevLib/bin/FlexBevLib.swc" useDefaultLinkType="false"/>
+    </libraryPath>
+    <sourceAttachmentPath/>
+  </compiler>
+  <applications>
+    <application path="index.mxml"/>
+  </applications>
+  <modules>
+    <module application="src/index.mxml" destPath="com/supermap/gears/navigator/NavigationGear.swf" optimize="true" sourcePath="src/com/supermap/gears/navigator/NavigationGear.mxml"/>
+    <module application="src/index.mxml" destPath="com/supermap/gears/overviewmap/OverviewMapGear.swf" optimize="true" sourcePath="src/com/supermap/gears/overviewmap/OverviewMapGear.mxml"/>
+  </modules>
+  <buildCSSFiles/>
+</actionScriptProperties>

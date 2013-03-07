@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/////////////////////////////////////////////////////////////////////////////////////////////
+//
+//	Copyright (c) 2013 SuperMap. All Rights Reserved.
+//
+//	Licensed under the Apache License, Version 2.0 (the "License");
+//	you may not use this file except in compliance with the License.
+//	You may obtain a copy of the License at
+//
+//	http://www.apache.org/licenses/LICENSE-2.0
+//
+//	Unless required by applicable law or agreed to in writing, software
+//	distributed under the License is distributed on an  "AS IS" BASIS,
+//	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//	See the License for the specific language governing permissions and
+//	limitations under the License.
+//
+///////////////////////////////////////////////////////////////////////////////////////////// 
+-->
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx">
+
+	<fx:Metadata>
+		[HostComponent("spark.components.BorderContainer")]
+	</fx:Metadata>
+	
+	<fx:Script>
+		<![CDATA[
+			
+			private function fullScreenHandler(event:MouseEvent):void
+			{
+				if(stage.displayState == StageDisplayState.FULL_SCREEN)
+				{
+					stage.displayState = StageDisplayState.NORMAL;
+					fullScreen.source = "assets/header/fullScreen.png";
+					fullScreen.toolTip = "全屏";
+				}
+				else if(stage.displayState == StageDisplayState.NORMAL)
+				{
+					stage.displayState = StageDisplayState.FULL_SCREEN;
+					fullScreen.source = "assets/header/normal.png";
+					fullScreen.toolTip = "返回";
+				}
+			}
+			
+			private function refreshHandler(event:MouseEvent):void
+			{
+				navigateToURL(new URLRequest("javascript:window.location.reload(false);"), "_self");
+			}
+			
+			private function aboutUsHandler(event:MouseEvent):void
+			{
+				
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:states>
+		<s:State name="disabled" />
+		<s:State name="normal" />
+	</s:states>
+
+<!--	<s:Rect id="test" left="0" right="0" top="0" bottom="0">
+		<s:fill>
+			<s:LinearGradient rotation="90">
+				<s:GradientEntry color="0" alpha="0.4"
+								 />
+				<s:GradientEntry color="0" alpha="0.2"
+								  />
+			</s:LinearGradient>
+		</s:fill>
+	</s:Rect>-->
+	
+	<s:Group width="100%" height="100%">
+		<s:Rect alpha="0.8" width="100%" height="100%" >
+			<s:fill>
+				<s:LinearGradient x="600" y="47" scaleX="46.9995" rotation="270">
+					<s:GradientEntry ratio="0" color="#262626"/>
+					<s:GradientEntry ratio="1" color="#767676"/>
+				</s:LinearGradient>
+			</s:fill>
+		</s:Rect>
+	</s:Group>
+	
+	<s:HGroup paddingLeft="10" gap="20" height="100%" verticalCenter="0" verticalAlign="middle">
+		<mx:Image source="assets/titlepng.png"/>	
+		<s:Label text="SuperMap iClient for Flex Bev" fontFamily="微软雅黑" fontSize="18" color="0xFFFFFF" left="100" top="6" fontWeight="bold"/>
+	</s:HGroup>
+	
+	<s:HGroup  gap="5" right="5" top="5">
+		<mx:Image id="fullScreen" source="assets/header/fullScreen.png" toolTip="全屏" click="fullScreenHandler(event)"/>	
+		<!--<mx:Image id="refresh" source="assets/header/refresh.png" toolTip="刷新" click="refreshHandler(event)"/>	-->
+		<!--<mx:Image id="about" source="assets/header/about.png" toolTip="关于FlexBev" click="aboutUsHandler(event)"/>	-->
+	</s:HGroup>
+	
+</s:Skin>

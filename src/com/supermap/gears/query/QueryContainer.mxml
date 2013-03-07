@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/////////////////////////////////////////////////////////////////////////////////////////////
+//
+//	Copyright (c) 2013 SuperMap. All Rights Reserved.
+//
+//	Licensed under the Apache License, Version 2.0 (the "License");
+//	you may not use this file except in compliance with the License.
+//	You may obtain a copy of the License at
+//
+//	http://www.apache.org/licenses/LICENSE-2.0
+//
+//	Unless required by applicable law or agreed to in writing, software
+//	distributed under the License is distributed on an  "AS IS" BASIS,
+//	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//	See the License for the specific language governing permissions and
+//	limitations under the License.
+//
+///////////////////////////////////////////////////////////////////////////////////////////// 
+-->
+<container:LayoutContainer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				   xmlns:s="library://ns.adobe.com/flex/spark" 
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   creationComplete="bordercontainer1_creationCompleteHandler(event)"
+				   initialize="layoutcontainer1_initializeHandler(event)"
+				   xmlns:container="com.supermap.containers.*"
+				   >
+	<fx:Script>
+		<![CDATA[
+			import com.supermap.commands.QueryCommand;
+			import com.supermap.containers.CustomFeatureDataGrid;
+			import com.supermap.containers.SkinableChartContainer;
+			import com.supermap.events.ContainerEvent;
+			import com.supermap.events.QueryPanelEvent;
+			import com.supermap.framework.dock.FloatPanel;
+			import com.supermap.framework.dock.supportClasses.DockUtil;
+			import com.supermap.framework.events.BaseEventDispatcher;
+			import com.supermap.framework.events.FloatPanelEvent;
+			import com.supermap.gears.query.queryContainer.QueryBorderContainerSkin;
+			import com.supermap.gears.query.queryContainer.QueryItemContainer;
+			import com.supermap.gears.query.serviceExtend.ExtendRecordSet;
+			import com.supermap.gears.query.serviceExtend.ExtendService;
+			import com.supermap.skins.customSkins.FloatPanelNoTabSkin;
+			import com.supermap.skins.customSkins.ChartContainerSkin;
+			import com.supermap.utils.PanelUtil;
+			import com.supermap.web.core.Feature;
+			import com.supermap.web.core.Point2D;
+			import com.supermap.web.core.styles.PictureMarkerStyle;
+			import com.supermap.web.events.FeatureDataGridEvent;
+			import com.supermap.web.mapping.FeaturesLayer;
+			
+			import mx.controls.Image;
+			import mx.controls.Text;
+			import mx.core.FlexGlobals;
+			import mx.events.FlexEvent;
+			import mx.rpc.AsyncResponder;
+			import mx.rpc.events.ResultEvent;
+			import mx.rpc.http.HTTPService;
+			
+			import spark.components.CheckBox;
+			import spark.components.HGroup;
+
+			private var tabAddedTitle:String = "";	
+			private var featureDic:Dictionary = new Dictionary();
+			private var iconDic:Dictionary = new Dictionary();
+			private var queryDic:Dictionary = new Dictionary();
+			private var featuresLayer:FeaturesLayer;
+
+			protected function bordercontainer1_creationCompleteHandler(event:FlexEvent):void
+			{				
+				EventBus.addCommand(ContainerEvent.CONTAINER_ADD, QueryCommand);
+				EventBus.addCommand(ContainerEvent.CONTAINER_DELETE, QueryCommand);
+				EventBus.addCommand(QueryPanelEvent.QUERYPANEL_REMOVE, QueryCommand);
+			}
+			
+			private function configResultFun(event:ResultEvent):void
+			{			
+				var configData:XML = event.result as XML;			
+				var queryList:XMLList = new XMLList();
+				queryList = configData.queryFilterName;
+				for(var i:int = 0;i < configData.queryFilterName.length(); i++)
+				{					
+					var qibc:QueryItemContainer = new QueryItemContainer();
+					qibc.width = 461;
+					qibc.height = 52;
+					qibc.headerColor = uint(queryList[i].@headerColor[0]);
+					qibc.content = queryList[i].@description;
+					qibc.title = queryList[i].@label;
+					iconDic[qibc.title] = queryList[i].@icon;
+					queryDic[qibc.title] = qibc.title;		
+					qibc.addEventListener(FlexEvent.CREATION_COMPLETE, QueryItemCreateHandler);
+					queryGroup.addElement(qibc);						
+				}
+			}
+			
+			private function QueryItemCreateHandler(event:Event):void
+			{
+				var item:QueryItemContainer = event.target as QueryItemContainer;
+				item.checkBox.addEventListener(Event.CHANGE, checkBox_changeHandler); 
+			}
+			
+			protected function checkBox_changeHandler(event:Event):void
+			{		
+				var item:QueryItemContainer = ((event.target as CheckBox).parent as QueryBorderContainerSkin).hostComponent as QueryItemContainer;
+				var queryName:String = item.title;
+				var checkBox:CheckBox = event.target as CheckBox;
+				if(checkBox.selected)
+				{
+					this.tabAddedTitle = queryName;
+					for(var str:String in this.queryDic)
+					{
+						if(str == queryName)	
+						{
+							this.queryBySql(this.queryDic[str]);							
+						}
+					}					
+				}					
+				else
+				{
+					removeQueryRecords(queryName);				
+				}					
+			}
+			
+			protected function queryBySql(layerName:String):void
+			{
+				this.cursorManager.setBusyCursor();				
+				var service:ExtendService = new ExtendService();
+				service.execute(this.tabAddedTitle,new AsyncResponder(this.dispalyQueryRecords, null, null));
+			}
+			
+			private function dispalyQueryRecords(resultSet:ExtendRecordSet,mark:Object = null):void
+			{	
+				if(resultSet.features == null)
+				{
+					return;
+				}
+				
+				var features:Array = resultSet.features;
+				
+				for(var j:int=0;j<features.length;j++)
+				{
+					(features[j] as Feature).addEventListener(MouseEvent.CLICK,showInfoWindow);
+				}
+				
+				if(!featuresLayer)
+				{
+					featuresLayer = new FeaturesLayer();
+					this.map.addLayer(featuresLayer);
+				}
+				
+				this.featureDic[this.tabAddedTitle] = features;
+				var imgSource:String = iconDic[this.tabAddedTitle];
+				var bankStyle:PictureMarkerStyle = new PictureMarkerStyle(imgSource);
+				var recordGrid:CustomFeatureDataGrid = new CustomFeatureDataGrid(featuresLayer, features, null);
+				if(recordGrid.hasEventListener(MouseEvent.DOUBLE_CLICK))
+				{
+					recordGrid.removeDoubleClickListener();
+				}
+				recordGrid.highLightStyle = bankStyle;
+				this.setFeatureStyle(features,bankStyle);
+				
+				this.featuresLayer.isPanEnableOnFeature = true;
+				
+				recordGrid.addEventListener(FeatureDataGridEvent.FEATURE_SELECTED, changeViewBounds);	
+				recordGrid.percentHeight = 100;
+				recordGrid.percentWidth = 100;
+				
+				EventBus.dispatchEvent(new ContainerEvent(ContainerEvent.CONTAINER_ADD, tabAddedTitle, recordGrid ));
+			}
+			
+			
+			/**
+			 *  查询结果放在一个浮动面板里
+			 *  TODO:需要单独抽离出来一个组件， 主要传递数据过去就行了
+			 */
+			private var barDefImg:String = "assets/panel/help.png";
+			private var dataGridPanel:FloatPanel;
+			private var datagridDic:Dictionary = new Dictionary();
+			private var fLayer:FeaturesLayer;
+			public function showDataGridHandler(event:ContainerEvent):void
+			{
+				var container:SkinableChartContainer = new SkinableChartContainer();
+				container.percentHeight = 100;
+				container.percentWidth = 100;
+				container.setStyle("skinClass",ChartContainerSkin);//暂时使用默认背景色 白色。。。
+				
+				var featureDataGrid:CustomFeatureDataGrid = event.resultContainer as CustomFeatureDataGrid;
+				if(featureDataGrid)
+				{
+					featureDataGrid.setStyle("verticalScrollBarStyleName","verticalScrollBarStyleName");
+					featureDataGrid.setStyle("oddRowAlpha", 0.2);
+					featureDataGrid.setStyle("evenRowAlpha", 0.3);
+					container.addElement(featureDataGrid);	
+				}
+				
+				featureDataGrid.setStyle("backgroundAlpha", 0.3);
+				fLayer = featureDataGrid.featuresLayer as FeaturesLayer;
+				
+				dataGridPanel = new FloatPanel();
+				dataGridPanel.title = event.containerTitle;
+				dataGridPanel.id = dataGridPanel.title;
+				dataGridPanel.setStyle("skinClass", FloatPanelNoTabSkin);
+				dataGridPanel.addElement(container);
+				dataGridPanel.y = FlexGlobals.topLevelApplication.height - 300;
+				dataGridPanel.mouseClickHandler = PanelUtil.mouseClickHandler;
+				FlexGlobals.topLevelApplication.addElement(dataGridPanel);
+				
+				//默认的iconBar
+				var obj:Object = {
+					pluginID:dataGridPanel.id,
+						iconBar:barDefImg,
+						tooltip:dataGridPanel.title
+				};
+				//需要优化......
+				DockUtil.getInstance().panels.push(obj);
+				if(!datagridDic[event.containerTitle])
+					datagridDic[event.containerTitle] = dataGridPanel;
+				this.cursorManager.removeBusyCursor();
+			}
+			
+			public function deleteDataGridHandler(event:ContainerEvent):void
+			{
+				var fp:FloatPanel = datagridDic[event.containerTitle];
+				if(fp && FlexGlobals.topLevelApplication.contains(fp))
+				{
+					FlexGlobals.topLevelApplication.removeElement(fp);
+					delete datagridDic[event.containerTitle];
+				}
+			}
+			
+			public function deleteAllDataGridHandler():void
+			{
+				for(var title:String in datagridDic)
+				{
+					var fp:FloatPanel = datagridDic[title];
+					if(FlexGlobals.topLevelApplication.contains(fp))
+					{
+						FlexGlobals.topLevelApplication.removeElement(fp);
+					}
+				}
+			}
+			
+			/**
+			 * 如果当前关闭的是查询面板 则清空数据
+			 */
+			public function queryPanelRemoveHandler(event:FloatPanelEvent):void
+			{
+				if((event.data as FloatPanel).id == "queryPanel")
+				{
+					//清空查询fLayer
+					if(fLayer) fLayer.clear();
+					//移除 面板
+					for each(var fp:FloatPanel in datagridDic)
+					{
+						if(FlexGlobals.topLevelApplication.contains(fp))
+						{
+							FlexGlobals.topLevelApplication.removeElement(fp);
+						}
+					}
+				}
+			}
+			
+			private function setFeatureStyle(features:Array,pictureMarkerStyle:PictureMarkerStyle):void
+			{
+				for(var i:int=0;i < features.length;i++)
+				{
+					(features[i] as Feature).style = pictureMarkerStyle;
+				}
+			}
+			
+			private function changeViewBounds(event:FeatureDataGridEvent):void
+			{	
+				var center:Point2D = event.feature.geometry.center;
+				if(center)
+					map.panTo(center);
+				this.showInfoWindow(event);
+			}
+			
+			private function showInfoWindow(event:Event):void
+			{
+				var telephone:String = "";
+				var code:String="";
+				var adress:String="";
+				var label:String = "";
+				var pointX:Number;
+				var pointY:Number;
+				var feature:Feature;
+				if(event is FeatureDataGridEvent) feature = (event as FeatureDataGridEvent).feature;
+				else feature = event.currentTarget as Feature;
+					
+				telephone = feature.attributes["TELEPHONE"];
+				code = feature.attributes["ZIPCODE"];
+				adress = feature.attributes["ADDRESS"];
+				label = feature.attributes["NAME"];
+				pointX = feature.geometry.center.x;
+				pointY = feature.geometry.center.y;
+
+				var pTxt:Text=new Text();
+				pTxt.text = telephone;
+				
+				var cTxt:Text=new Text();
+				cTxt.text = code;
+				
+				var aTxt:Text=new Text();
+				aTxt.text = adress;
+				
+				var phoneImg:Image=new Image();
+				phoneImg.source="assets/phone.png";
+				var codeImg:Image=new Image();
+				codeImg.source="assets/code.png";
+				var adressImg:Image=new Image();
+				adressImg.source="assets/adress.png";
+				
+				var phGroup:HGroup=new HGroup();
+				phGroup.x = 10;
+				phGroup.addElement(phoneImg);
+				phGroup.addElement(pTxt);
+				var chGroup:HGroup=new HGroup();
+				chGroup.addElement(codeImg);
+				chGroup.addElement(cTxt);
+				var ahGroup:HGroup=new HGroup();
+				ahGroup.addElement(adressImg);
+				ahGroup.addElement(aTxt);
+				var vGroup:VGroup=new VGroup();
+				vGroup.addElement(phGroup);
+				vGroup.addElement(chGroup);
+				vGroup.addElement(ahGroup);
+				vGroup.setStyle('fontSize',"12");
+				vGroup.paddingLeft = 3;
+				map.infoWindow.content = vGroup;
+				map.infoWindow.label = label;
+				map.infoWindow.infoWindowLabel.setStyle('fontSize', "15");
+				map.infoWindow.show(new Point2D(pointX, pointY));
+			}
+			
+			protected function removeQueryRecords(tabTitle:String):void
+			{
+				var features:Array = this.featureDic[tabTitle];
+				
+				for(var i:int = 0; i < features.length; i++)
+				{
+					this.featuresLayer.removeFeature(features[i]);
+				}
+				map.infoWindow.hide();
+				EventBus.dispatchEvent(new ContainerEvent(ContainerEvent.CONTAINER_DELETE, tabTitle));
+			}
+
+			protected function layoutcontainer1_initializeHandler(event:FlexEvent):void
+			{
+				var configService:HTTPService = new HTTPService();
+				configService.url = "com/supermap/gears/query/QueryGearConfig.xml";
+				configService.resultFormat = "e4x";
+				
+				configService.addEventListener(ResultEvent.RESULT, configResultFun);
+				configService.send();	
+			}
+
+		]]>
+	</fx:Script>
+
+	<s:VGroup id="queryGroup" gap="5" paddingTop="15" paddingLeft="15" paddingRight="15" width="100%" height="100%">
+	</s:VGroup>
+	
+</container:LayoutContainer>

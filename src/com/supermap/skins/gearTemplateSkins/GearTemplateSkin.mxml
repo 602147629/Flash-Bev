@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/////////////////////////////////////////////////////////////////////////////////////////////
+//
+//	Copyright (c) 2013 SuperMap. All Rights Reserved.
+//
+//	Licensed under the Apache License, Version 2.0 (the "License");
+//	you may not use this file except in compliance with the License.
+//	You may obtain a copy of the License at
+//
+//	http://www.apache.org/licenses/LICENSE-2.0
+//
+//	Unless required by applicable law or agreed to in writing, software
+//	distributed under the License is distributed on an  "AS IS" BASIS,
+//	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//	See the License for the specific language governing permissions and
+//	limitations under the License.
+//
+///////////////////////////////////////////////////////////////////////////////////////////// 
+-->
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:fb="http://ns.adobe.com/flashbuilder/2009" alpha.disabled="0.5" xmlns:mx="library://ns.adobe.com/flex/mx" >
+	
+	<fx:Metadata>
+		<![CDATA[ 		
+		[HostComponent("com.supermap.framework.core.gearBase.GearTemplate")]
+		]]>
+	</fx:Metadata> 
+	<fx:Script>
+		<![CDATA[
+			import mx.effects.Glow;
+			import mx.events.EffectEvent;
+			import mx.events.FlexEvent;
+
+			protected function sequence1_effectStartHandler(event:EffectEvent):void
+			{
+				this.minimizeButton.visible = false;
+				this.closeButton.visible = false;
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:Bounce id="bounce"/>
+	</fx:Declarations>
+	
+	<s:states>
+		<s:State name="normal"/>
+		<s:State name="open"/>
+		<s:State name="minimized"/>
+		<s:State name="closed"/>
+		<s:State name="disabled"/>
+	</s:states>
+
+	<s:transitions>
+		<s:Transition fromState="open" toState="minimized">
+			<s:Sequence>
+				<s:Fade duration="100" target="{minimizeButton}"/>
+				<s:Fade duration="100" target="{closeButton}"/>
+				<s:Fade duration="100" target="{widgetLabel}"/>				
+				<s:Fade duration="100" target="{contentGroup}"/>
+				<s:Fade duration="100" target="{widgetFrame}"/>
+				<s:Resize heightTo="40"
+						  target="{hostComponent}"
+						  widthTo="100"/>
+				<s:Move easer="{bounce}" target="{icon}"/>
+			</s:Sequence>
+		</s:Transition>
+		<s:Transition fromState="*" toState="open">
+			<s:Sequence>
+				<s:Move target="{icon}"/>
+				<s:Resize heightTo="{hostComponent.gearHeight}"
+						  target="{hostComponent}"
+						  widthTo="{hostComponent.gearWidth}"/>
+				<s:Fade duration="100" target="{widgetFrame}"/>
+				<s:Fade duration="200" target="{widgetLabel}"/>
+				<s:Fade duration="100" target="{contentGroup}"/>
+				<s:Fade duration="100" target="{header}"/>
+				<s:Fade duration="100" target="{minimizeButton}"/>
+				<s:Fade duration="100" target="{closeButton}"/>
+				
+			</s:Sequence>
+		</s:Transition>
+		<s:Transition fromState="open" toState="closed">
+			<s:Sequence>
+				<s:Fade duration="100" target="{widgetFrame}"/>
+				<s:Fade duration="100" target="{widgetLabel}"/>
+				
+				<s:Fade duration="100" target="{contentGroup}"/>
+			</s:Sequence>
+		</s:Transition>
+	</s:transitions>
+	
+	<s:Group  id="widgetFrame" left="0" right="0" top="0" bottom="0" >
+		<!--<s:BitmapImage width="100%" height="100%" alpha="0.75" blendMode="multiply"  source="@Embed('assets/ai13130605237.png')" /> 	-->	
+		<s:Rect left="15" right="15" top="15" bottom="15" id="bgFrame" >
+			<s:fill>         
+				<s:SolidColor color="{getStyle('contentBackgroundColor')}" alpha="0.7"/>
+			</s:fill>     
+			<s:filters>         
+				<s:BlurFilter blurX.open="12" blurY.open="12" blurX.minimized="5"  blurY.minimized="5" /> 
+			</s:filters> 			
+		</s:Rect>
+		<s:Group left="21.29" top="21.7813" right="21.29" bottom="21.7813"  visible.closed="false"
+				 visible.minimized="false"
+				 visible.normal="true">
+			<s:Group left="0.5" top="0.5" right="0.5" bottom="0.5">	
+				<s:Path width="100%" height="100%" winding="nonZero" data="M6.66113 252.976C2.98828 252.976 0 249.987 0 246.314L0 6.66113C0 2.98828 2.98828 0 6.66113 0L338.118 0C341.791 0 344.779 2.98828 344.779 6.66113L344.779 246.314C344.779 249.987 341.791 252.976 338.118 252.976L6.66113 252.976Z" >
+					<s:fill>
+						<s:LinearGradient  scaleX="252.975" rotation="-90">
+							<s:GradientEntry color="{getStyle('selectionColor')}" ratio="0" alpha="0.5"/>
+							<s:GradientEntry color="{getStyle('selectionColor')}" ratio="0.751515" alpha="0.6"/>
+							<s:GradientEntry color="{getStyle('selectionColor')}" ratio="1" alpha="0.4"/>
+						</s:LinearGradient>
+					</s:fill>
+				</s:Path>
+			</s:Group>
+		</s:Group>
+		<s:Group left="21.29" top="21.7813" right="21.29" bottom="21.7813"  visible.closed="false"
+				 visible.minimized="false"
+				 visible.normal="true">
+			<s:Path width="100%" height="100%" winding="nonZero"  data="M338.618 1C342.021 1 344.779 3.75879 344.779 7.16113L344.779 246.814C344.779 250.217 342.021 252.976 338.618 252.976L7.16113 252.976C3.75781 252.976 1 250.217 1 246.814L1 7.16113C1 3.75879 3.75781 1 7.16113 1L338.618 1M338.618 0L7.16113
+					0C3.2124 0 0 3.2124 0 7.16113L0 246.814C0 250.763 3.2124 253.976 7.16113 253.976L338.618 253.976C342.566 253.976 345.779 250.763 345.779 246.814L345.779 7.16113C345.779 3.2124 342.566 0 338.618 0L338.618 0Z" >
+				<s:fill>
+					<s:SolidColor color="#ffffff" alpha="0.5"/>
+				</s:fill>
+			</s:Path>			
+		</s:Group>		
+	</s:Group>	
+	
+	<s:Group  id="contentGroup" left="18" top="48"  right="18" bottom="18" alpha="0.8" 
+			  visible.closed="false"
+			  visible.minimized="false"
+			  visible.normal="true"
+			  visible.open="true">
+		<s:BitmapImage alpha="0.75" blendMode="multiply" width="100%" height="100%" source="@Embed('assets/ai131306184222.png')" />
+		<s:Group left="9.45117" top="9.92578" right="9.45117"  bottom="9.92578">
+			<s:Group  width="100%" height="100%" >
+				<s:Path  width="100%" height="100%" winding="nonZero"  data="M4.19629 210.67C1.88232 210.67 0 208.787 0 206.474L0 4.19629C0 1.88232 1.88232 0 4.19629 0L328.261 0C330.574 0 332.457 1.88232 332.457 4.19629L332.457 206.474C332.457 208.787 330.574 210.67 328.261 210.67L4.19629 210.67Z" >
+					<s:fill>
+						<s:LinearGradient scaleX="210.669" rotation="-90">
+							<s:GradientEntry color="{getStyle('contentBackgroundColor')}" ratio="0"/>
+							<s:GradientEntry color="{getStyle('rolloverColor')}" ratio="0.5"/>
+							<s:GradientEntry color="{getStyle('selectionColor')}" ratio="1"/>
+						</s:LinearGradient>
+					</s:fill>
+				</s:Path>
+			</s:Group>
+			<s:Group width="100%" height="100%" >
+				<s:Path width="100%" height="100%"  winding="nonZero"  data="M328.761 1C330.803 1 332.457 2.65527 332.457 4.69629L332.457 206.974C332.457 209.016 330.803 210.67 328.761 210.67L4.69629 210.67C2.65527 210.67 1 209.016 1 206.974L1 4.69629C1 2.65527 2.65527 1 4.69629 1L328.761 1M328.761 0L4.69629 0C2.10693
+						0 0 2.10693 0 4.69629L0 206.974C0 209.563 2.10693 211.67 4.69629 211.67L328.761 211.67C331.351 211.67 333.457 209.563 333.457 206.974L333.457 4.69629C333.457 2.10693 331.351 0 328.761 0L328.761 0Z" >
+					<s:fill>
+						<s:SolidColor color="{getStyle('color')}"/>
+					</s:fill>
+				</s:Path>
+			</s:Group>
+		</s:Group>
+	</s:Group>
+	
+	<s:Group  id="header" left="14" top="12" height="43" right="14"  visible.closed="false"
+			  visible.minimized="false"
+			  visible.normal="true"
+			  visible.open="true">
+		
+		<s:BitmapImage alpha="0.75" blendMode="multiply" width="100%" height="100%" source="@Embed('assets/ai13130608169.png')" />
+		
+		<s:Group left="9.63818" top="9.15088" right="9.63818" height="100%">
+			<s:Group width="100%" height="100%" >
+				<s:Path height="100%" width="100%" winding="nonZero" data="M13.5029 30.8804C10.1147 30.8804 7.05811 28.6167 6.06982 25.376L0.210938 6.15674C-0.233887 4.69629 0.0322266 3.15527 0.939941 1.92871 1.84814 0.702637 3.24414 0 4.77051 0L335.308 0C336.833 0 338.229 0.702637 339.139 1.92822 340.047 3.15576
+						340.312 4.69629 339.867 6.15576L334.01 25.376C333.021 28.6167 329.964 30.8804 326.576 30.8804L13.5029 30.8804Z" >
+					<s:fill>
+						<s:LinearGradient  scaleX="30.8804" rotation="-90">
+							<s:GradientEntry color="{getStyle('selectionColor')}" ratio="0"/>
+							<s:GradientEntry color="{getStyle('selectionColor')}" ratio="0.5"/>
+							<s:GradientEntry color="{getStyle('selectionColor')}" ratio="1"/>
+						</s:LinearGradient>
+					</s:fill>
+				</s:Path>
+			</s:Group>
+			<s:Path height="100%" width="100%" winding="nonZero" data="M335.808 1C337.175 1 338.424 1.62939 339.238 2.72607 340.049 3.82373 340.288 5.20264 339.889 6.50977L334.032 25.73C333.107 28.7622 330.248 30.8804 327.077 30.8804L14.0034 30.8804C10.8325 30.8804 7.97314 28.7622 7.04834 25.73L1.18994 6.51074
+					C0.791504 5.20264 1.02979 3.82373 1.84229 2.72607 2.65479 1.62939 3.90479 1 5.271 1L335.808 1M335.808 0L5.271 0C3.58447 0 2.04199 0.776855 1.03857 2.13086 0.0356445 3.48633 -0.258301 5.18896 0.233398 6.80225L6.0918 26.0215C7.14404 29.4712 10.3975
+					31.8804 14.0034 31.8804L327.077 31.8804C330.683 31.8804 333.936 29.4712 334.988 26.0215L340.845 6.80127C341.337 5.18945 341.044 3.4873 340.042 2.13135 339.037 0.776367 337.494 0 335.808 0L335.808 0Z" >
+				<s:fill>
+					<s:SolidColor color="{getStyle('color')}" /><!--边缘线颜色-->
+				</s:fill>
+			</s:Path>
+		</s:Group>
+		
+		<s:Label id="widgetLabel"
+				 left="30" top="20"
+				 width="100%"
+				 alpha.closed="0"
+				 alpha.minimized="0"
+				 alpha.open="1"
+				 maxDisplayedLines="1"
+				 showTruncationTip="true"				
+				 text="{hostComponent.GearTitle}"
+				 />
+	</s:Group>
+	
+	<mx:Image id="minimizeButton" top="23" right="70" source="../assets/min1.png" visible.closed="false"  visible.minimized="false" visible="{hostComponent.enableMinimizeButton}"/>
+	<mx:Image id="closeButton" right="30" top="23"  source="../assets/close2.png" visible.closed="false"  visible.minimized="false" visible="{hostComponent.enableCloseButton}"/>
+	
+	<s:Group  id="GearFrame" left="0" right="0" top="0" bottom="0" >
+	</s:Group>	
+	
+	<!--左侧栏-->
+	<s:Group  left="12"  top="{this.contentGroup.top + 10}" bottom="{this.contentGroup.bottom - 10}" visible.closed="false"  visible.minimized="false">
+		<s:Group width="100%" height="100%">
+			<s:BitmapImage alpha="0.75" blendMode="multiply" width="100%" height="100%" source="@Embed('assets/ai131306162118.png')" />
+			<s:Group left="10.291" top="12.167" bottom="12.167">
+				<s:Group width="100%" height="95%">
+					<s:Path width="100%" height="100%" winding="nonZero" data="M0 0L10.6279 11.5518 10.6279 182.511 0 192.522 0 0Z" >
+						<s:fill>
+							<s:LinearGradient y="96.2607" scaleX="10.6279" rotation="-0">
+								<s:GradientEntry color="{getStyle('color')}" ratio="0"/>
+								<s:GradientEntry color="{getStyle('color')}" ratio="0.2"/>
+								<s:GradientEntry color="#c9cacb" ratio="0.442534"/>
+								<s:GradientEntry color="{getStyle('selectionColor')}" ratio="0.763636"/><!--#929497-->
+								<s:GradientEntry color="{getStyle('selectionColor')}" ratio="0.865344"/><!--#929497-->
+								<s:GradientEntry color="{getStyle('selectionColor')}" ratio="1"/><!--#929497-->
+							</s:LinearGradient>
+						</s:fill>
+					</s:Path>
+				</s:Group>
+			</s:Group>
+		</s:Group>
+	</s:Group>
+	
+	<!--右侧栏-->
+	<s:Group   right ="12" top="{this.contentGroup.top + 10}"  bottom="{this.contentGroup.bottom - 10}" visible.closed="false"  visible.minimized="false">
+		<s:Group width="100%" height="100%">
+			<s:BitmapImage alpha="0.75" blendMode="multiply" width="100%" height="100%" source="@Embed('assets/ai131306169220.png')" />
+			<s:Group left="10.4414" top="12.167" right="10" bottom="12.167">
+				<s:Group width="100%" height="95%">
+					<s:Path width="100%" height="100%" winding="nonZero" data="M10.6279 0L0 11.5518 0 182.511 10.6279 192.522 10.6279 0Z" >
+						<s:fill>
+							<s:LinearGradient  scaleX="10.6279" rotation="-0">
+								<s:GradientEntry color="{getStyle('selectionColor')}" ratio="0"/>
+								<s:GradientEntry color="{getStyle('selectionColor')}" ratio="0.134656"/>
+								<s:GradientEntry color="{getStyle('selectionColor')}" ratio="0.236364"/>
+								<s:GradientEntry color="#c9cacb" ratio="0.557466"/>
+								<s:GradientEntry color="{getStyle('color')}" ratio="0.8"/>
+								<s:GradientEntry color="{getStyle('color')}" ratio="1"/>
+							</s:LinearGradient>
+						</s:fill>
+					</s:Path>
+				</s:Group>
+			</s:Group>
+		</s:Group>
+	</s:Group>	
+	
+	<mx:Image id="icon" visible.open="false"
+			  x.minimized="50" x.open="0" y="12" y.minimized="-2" width="40" height="40"
+			  buttonMode="false"
+			  buttonMode.minimized="true"
+			  source="{hostComponent.GearIcon}"
+			  useHandCursor="false"
+			  useHandCursor.minimized="true"
+			  visible="{hostComponent.enableIcon}"
+			  visible.closed="false">
+		<mx:filters>
+			<mx:DropShadowFilter blurX="10" blurY="10"/>
+		</mx:filters>
+	</mx:Image>
+	
+	<s:Group id="resizeButton" right="22" bottom="22">
+		<mx:Image visible.closed="false"
+				  visible.minimized="false"
+				  visible.open="{hostComponent.resizable}"
+				  source="@Embed('../assets/w_resize.png')"
+				  />
+	</s:Group>
+	
+</s:Skin>

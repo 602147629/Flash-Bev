@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/////////////////////////////////////////////////////////////////////////////////////////////
+//
+//	Copyright (c) 2013 SuperMap. All Rights Reserved.
+//
+//	Licensed under the Apache License, Version 2.0 (the "License");
+//	you may not use this file except in compliance with the License.
+//	You may obtain a copy of the License at
+//
+//	http://www.apache.org/licenses/LICENSE-2.0
+//
+//	Unless required by applicable law or agreed to in writing, software
+//	distributed under the License is distributed on an  "AS IS" BASIS,
+//	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//	See the License for the specific language governing permissions and
+//	limitations under the License.
+//
+///////////////////////////////////////////////////////////////////////////////////////////// 
+-->
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:fb="http://ns.adobe.com/flashbuilder/2009" alpha.disabled="0.5" 
+		xmlns:mx="library://ns.adobe.com/flex/mx"
+		creationComplete="skin1_creationCompleteHandler(event)">
+	
+	<fx:Metadata>
+		<![CDATA[ 
+		[HostComponent("com.supermap.containers.component.PanelConfigBar")]
+		]]>
+	</fx:Metadata> 
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.events.EffectEvent;
+			import mx.events.FlexEvent;
+			
+			[Bindable]
+			public var upUnfoldY:int;
+			
+			[Bindable]
+			public var normalY:int;
+
+			protected function skin1_creationCompleteHandler(event:FlexEvent):void
+			{
+				upUnfoldY = this.hostComponent.y - 200;
+				normalY = this.hostComponent.y;
+			}
+
+			/**
+			 *  折叠动画结束后执行
+			 */
+			protected function parallel2_effectEndHandler(event:EffectEvent):void
+			{
+				this.hostComponent.y = normalY;
+				this.hostComponent.height = this.hostComponent.defaultHeight;
+				
+				//调整布局方式
+				this.hostComponent.setDefLayout();
+			}
+			
+			/**
+			 *  展开动画结束后执行
+			 */
+			protected function parallel1_effectEndHandler(event:EffectEvent):void
+			{
+				this.hostComponent.y = upUnfoldY;
+				this.hostComponent.height = 200;
+				//调整布局方式
+				this.hostComponent.setUnfoldLayout();
+			}	
+		]]>
+	</fx:Script>
+	
+	<s:states>
+		<s:State name="normal" />
+		<s:State name="disabled" />
+		<s:State name="unfold"/>
+	</s:states>
+	
+	<!--动画效果-->
+	<s:transitions>
+		<!--展开-->
+		<s:Transition fromState="normal" toState="unfold">
+			<s:Parallel effectEnd="parallel1_effectEndHandler(event)" duration="300">
+				<s:Move yFrom="{hostComponent.y}" yTo="{upUnfoldY}" target="{hostComponent}"/>
+				<s:Resize  heightTo="200"  target="{hostComponent}"  />			
+			</s:Parallel>
+		</s:Transition>
+		<!--折叠-->
+		<s:Transition fromState="unfold" toState="normal">
+			<s:Parallel effectEnd="parallel2_effectEndHandler(event)" duration="300">
+				<s:Move yFrom="{hostComponent.y}" yTo="{this.hostComponent.y + 200}" target="{hostComponent}"/>
+				<s:Resize  heightTo="{this.hostComponent.defaultHeight}"  target="{hostComponent}"  />			
+			</s:Parallel>
+		</s:Transition>
+	</s:transitions>
+	<!--动画结束-->
+	
+	<s:Rect id="background" left="-1" right="-1" top="-1" bottom="-1" radiusX="3" radiusY="3">
+		<s:fill>
+			<s:SolidColor id="bgFill" color="0" alpha="0.6"/>
+		</s:fill>
+		<s:stroke>
+			<s:SolidColorStroke color="0xffffff" alpha="1" weight="1.2"/>
+		</s:stroke>
+	</s:Rect>
+	
+	<s:Group id="group" left="0" right="0" top="0" bottom="0" width="500">
+		<s:Group alpha="0.8" width="100%" height="100%">
+			<s:Rect x="1" width="100%" height="100%" radiusX="4.49305" radiusY="4.49305">
+				<s:fill>
+					<s:SolidColor color="#292929" alpha="0"/>
+				</s:fill>
+			</s:Rect>
+		</s:Group>
+	</s:Group>
+	
+	<s:Group  right="1" top="1">
+		<mx:Image id="upimg" toolTip.normal="展开" toolTip.unfold="返回"  source.unfold="{hostComponent.downImg}" source.normal="{hostComponent.upImg}" />
+		<!--<s:Label id="upTxt" text="{hostComponent.upTxt}" right="5" top="30" fontFamily="微乳雅黑" color="0xffffff" fontSize="12" fontWeight="bold"/>-->
+	</s:Group>
+	
+	<!--left="5" top="50"-->
+	<!--
+	<s:Group  left="5" top="0"> 
+		<s:Group >
+			<s:Group >
+				<s:Path data="M0 21 40 21 40 0 0 0 12.333 10.9995 0 21Z">
+					<s:fill>
+						<s:SolidColor color="#7B7B7B"/>
+					</s:fill>
+				</s:Path>
+				<s:Path x="19" data="M21 21 0 26 0 5 21 0 21 21Z">
+					<s:fill>
+						<s:SolidColor color="#3A663B"/>
+					</s:fill>
+				</s:Path>
+				<s:Path x="19" y="5" data="M103 21 0 21 0 0 103 0 90.667 11 103 21Z">
+					<s:fill>
+						<s:SolidColor color="#569656"/>
+					</s:fill>
+				</s:Path>
+			</s:Group>
+		</s:Group>
+		<s:Label id="label" text="{hostComponent.title}" top="10" left="40"/>
+	</s:Group>
+	-->
+	<s:Group id="contentGroup" left="{hostComponent.leftNum}" right="0" verticalCenter="3" height="100%" >
+	</s:Group>
+</s:Skin>

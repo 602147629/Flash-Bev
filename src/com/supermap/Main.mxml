@@ -1,0 +1,545 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/////////////////////////////////////////////////////////////////////////////////////////////
+//
+//	Copyright (c) 2013 SuperMap. All Rights Reserved.
+//
+//	Licensed under the Apache License, Version 2.0 (the "License");
+//	you may not use this file except in compliance with the License.
+//	You may obtain a copy of the License at
+//
+//	http://www.apache.org/licenses/LICENSE-2.0
+//
+//	Unless required by applicable law or agreed to in writing, software
+//	distributed under the License is distributed on an  "AS IS" BASIS,
+//	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//	See the License for the specific language governing permissions and
+//	limitations under the License.
+//
+///////////////////////////////////////////////////////////////////////////////////////////// 
+-->
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:dockalbe="net.goozo.mx.dockalbe.*" 
+		 xmlns:dock="com.supermap.framework.dock.*" 
+		 xmlns:containers="com.supermap.containers.*"
+		 creationComplete="application1_creationCompleteHandler(event)" 
+		 resize="group1_resizeHandler(event)"
+		 xmlns:query="com.supermap.gears.query.*" 
+		 xmlns:local="*" xmlns:supermap="com.supermap.*"
+		 width="100%" height="100%">
+	<s:layout>
+		<s:BasicLayout clipAndEnableScrolling="true"/>
+	</s:layout>
+	
+	<fx:Declarations>
+		<supermap:XMLDecoder id="xmlDecoder" proloadgear="getLoadProGearHandler(event)" 
+						  configload="xmldecoder1_configloadHandler(event)"
+						  mapGearLoad="xmldecoder1_mapGearLoadHandler(event)"
+						  configPanelPlugin="xmldecoder1_configPanelPluginHandler(event)"
+						  customPanelNoPlugin="xmldecoder1_customPanelNoPluginHandler(event)"
+						  loadMapPanel="xmldecoder1_loadMapPanelHandler(event)"
+						  panelVectorData="xmldecoder1_panelVectorDataHandler(event)"						 
+						  />
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.supermap.containers.*;
+			import com.supermap.containers.component.PanelBarDataGroup;
+			import com.supermap.containers.component.PanelConfigBar;
+			import com.supermap.containers.component.PanelDockData;
+			import com.supermap.events.DataConfigEvent;
+			import com.supermap.framework.components.MapControl;
+			import com.supermap.framework.dock.DockBarComponent;
+			import com.supermap.framework.dock.DockableTabNavigator;
+			import com.supermap.framework.dock.FloatPanel;
+			import com.supermap.framework.dock.IconUtil;
+			import com.supermap.framework.dock.supportClasses.DockUtil;
+			import com.supermap.framework.events.BaseEventDispatcher;
+			import com.supermap.framework.events.FloatPanelEvent;
+			import com.supermap.framework.events.GearEvent;
+			import com.supermap.framework.events.PluginEvent;
+			import com.supermap.skins.customSkins.FloatPanelNoTabSkin;
+			import com.supermap.skins.customSkins.HeaderbarSkin;
+			import com.supermap.utils.PanelUtil;
+			import com.supermap.utils.ReflectUtil;
+			import com.supermap.web.mapping.Map;
+			
+			import mx.collections.ArrayCollection;
+			import mx.core.FlexGlobals;
+			import mx.events.FlexEvent;
+			import mx.events.ResizeEvent;
+			
+			import spark.components.BorderContainer;
+			import spark.components.NavigatorContent;
+			import spark.components.Scroller;
+			import spark.components.TitleWindow;
+			
+			/**
+			 *  默认的图标 在面板管理条上的默认显示图标 如果没有设置该项的话
+			 */
+			private var barDefImg:String = "assets/panel/help.png";
+			
+			[Bindable]public var loadProGearData:Object;			
+			
+			private function getLoadProGearHandler(event:DataConfigEvent):void
+			{
+				loadProGearData = event.data;
+				gearContainer.gearContainerData = loadProGearData;
+			}
+			
+			[Bindable]
+			private var mapControl:MapControl;
+			[Bindable]
+			private var styleObj:Object;
+			
+			private var vector:Vector.<Object>;
+			private var panelBar:XMLList;
+			
+			private var panelsNoTab:Array;
+			
+			/**
+			 *  全局的map变量
+			 */
+			public static var map:Map
+			
+			protected function application1_creationCompleteHandler(event:FlexEvent):void
+			{
+				ReflectUtil.initialize();
+				
+				new BevStyleManager(null);				
+				
+				DockBarComponent.getInstance().right = 10;
+				DockBarComponent.getInstance().top = 80;
+				
+				//TODO:添加风格样式面板 
+				if(panelsNoTab && panelsNoTab.length)
+				{
+				}
+				
+				if(vector && panelBar)
+					createPanelBar();
+				
+				if(managerBar && FlexGlobals.topLevelApplication.contains(managerBar as DisplayObject))
+					FlexGlobals.topLevelApplication.addElementAt(managerBar, FlexGlobals.topLevelApplication.numElements - 1);
+				
+				//派发事件
+				BaseEventDispatcher.getInstance().dispatchEvent(new DataConfigEvent(DataConfigEvent.STYLE_LOAD, styleObj));	
+				BaseEventDispatcher.getInstance().addEventListener(FloatPanelEvent.FLOATPANEL_CREATE, createPanelHandler);
+			}
+			
+			private function createPanelHandler(event:FloatPanelEvent):void
+			{
+				var fp:FloatPanel = event.data.panel as FloatPanel;
+				fp.mouseClickHandler = PanelUtil.mouseClickHandler;
+			}
+			
+			private var managerBar:PanelConfigBar;
+			private function createPanelBar():void
+			{
+				//生成panelManangerbar
+				var panelBarLen:int = panelBar.length();
+				var id:String = panelBar.@id[0];
+				var x:int = panelBar.@x[0];				
+				var y:int = panelBar.@y[0];
+				var title:String = panelBar.@title[0];
+				var top:int = panelBar.@top[0];
+				var bottom:int = panelBar.@bottom[0];
+				var left:int = panelBar.@left[0];
+				var right:int = panelBar.@right[0];
+				var name:String = panelBar.@name[0];
+				var defNum:Number = Number(panelBar.@defNum[0]);
+				if(name)
+				{
+					var panelBarInstance:Class = getDefinitionByName(name) as Class;
+					managerBar = new panelBarInstance();
+					managerBar.setStyle("skinClass", com.supermap.containers.component.PanelConfigBarSkin);
+					if(top)
+						managerBar.top = top;					
+					if(title)
+						managerBar.title = title;
+					if(bottom)
+						managerBar.bottom = bottom;
+					if(defNum)
+						managerBar.defNum = defNum;
+					FlexGlobals.topLevelApplication.addElement(managerBar);
+					managerBar.vector = vector;
+				}
+			}
+			
+			private function barCreateHandler(event:FlexEvent):void
+			{
+				var vectorLen:int = vector.length;
+				for(var i:int = 0; i < vectorLen; i++)
+				{
+					var panelObj:Object = vector[i];
+					var imgStr:String = panelObj.iconBar;
+					if(!imgStr)
+						imgStr = barDefImg;
+					//如果有图片 就显示 没有用默认的 提示信息也同样处理
+					var isInitialize:Boolean = panelObj.isPanel;
+					if(imgStr)
+					{
+						var dockBarDataGroup:PanelBarDataGroup = new PanelBarDataGroup();
+						dockBarDataGroup.id = panelObj.id;
+						if(panelObj.describe)
+							dockBarDataGroup.name = panelObj.describe;
+						else
+							dockBarDataGroup.name = "这是一个面板！";
+						
+						var dockData:PanelDockData = new PanelDockData();
+						dockData.name = "第一个";
+						dockData.icon = imgStr;//48*48
+						var arrayC:ArrayCollection = new ArrayCollection();
+						arrayC.addItem(dockData);			
+						dockBarDataGroup.dataProvider = arrayC;
+						dockBarDataGroup.addEventListener(MouseEvent.MOUSE_OVER, imgMouseOverHandler);
+						//dockBarDataGroup.y = 20;
+						managerBar.addElement(dockBarDataGroup);
+					}
+				}
+			}
+			
+			private function imgMouseOverHandler(event:MouseEvent):void
+			{
+				managerBar.getToolTip().show(event.currentTarget as DisplayObject, event.currentTarget.name);	
+			}
+			
+			/**
+			 *  样式处理
+			 */
+			protected function xmldecoder1_configloadHandler(event:DataConfigEvent):void
+			{
+				styleObj = event.data;		
+			}
+			
+			[Bindable]private var mapGearsObj:Array;
+			protected function xmldecoder1_mapGearLoadHandler(event:DataConfigEvent):void
+			{
+				// TODO Auto-generated method stub
+				mapGearsObj = event.data as Array;
+				templateContainer.gearData = mapGearsObj;
+			}
+			
+			private var iconObj:Dictionary;
+			private var pluginsAry:Array;
+			
+			private var panelObj:Object;
+			protected function xmldecoder1_configPanelPluginHandler(event:DataConfigEvent):void
+			{				
+				panelObj = event.data;	
+				creategPanelPluginHandler(panelObj);
+			}
+			
+			[Bindable]
+			private var dockDatas:Array;
+			private function creategPanelPluginHandler(data:Object):void
+			{
+				dockDatas = [];
+				pluginsAry = [];
+				var panels:int = (data as Array).length;
+				for(var i:int = 0; i < panels; i++)
+				{
+					var pObj:Object = (data as Array)[i];
+					var plugins:Array = pObj.plugin as Array;
+					var panel:Object = pObj.panel;
+					var queryPanel:*;
+					//加载panel				
+					var panelObj:Object = panel;
+					var panelName:String;
+					if(panelObj.name)
+						panelName = panelObj.name;
+					else
+						panelName = "com.supermap.framework.dock.FloatPanel";
+					queryPanel = GetDisplayResource(panelName);
+					if(panelObj.x)
+						queryPanel.x = panelObj.x;
+					if(panelObj.y)
+						queryPanel.y = panelObj.y;
+					if(panelObj.width)
+						queryPanel.width = panelObj.width;
+					if(panelObj.y)
+						queryPanel.height = panelObj.height;	
+					if(panelObj.id)
+						queryPanel.id = panelObj.id;	
+					var isDockStr:String = panelObj.isDock;
+					var isDock : Boolean = isDockStr == "true" ? true : false;
+					if(isDock)
+						queryPanel.titleWindowState = FloatPanel.DOCK;
+					if(panelObj.maxTabNum)
+						queryPanel.tabLimitNum = panelObj.maxTabNum;
+					if(panelObj.icon)
+						queryPanel.icon = panelObj.icon;
+					
+					var tabNavigator:DockableTabNavigator = new DockableTabNavigator();
+					tabNavigator.id = "dockTab";
+					tabNavigator.setStyle("backgroundAlpha", 0.5);
+					queryPanel.addChild(tabNavigator);
+					queryPanel.mouseClickHandler = PanelUtil.mouseClickHandler;
+					//加载plugin
+					iconObj = new Dictionary();
+					var pluginLen:int = plugins.length;
+					for(var j:int = 0; j < pluginLen; j++)
+					{
+						var obj:Object;
+						var pluginObj:Object = plugins[j] as Object;
+						var queryItem:*;
+						if(pluginObj.name)
+						{
+							var pluginInstance:Class = getDefinitionByName(pluginObj.name) as Class;
+							queryItem = new pluginInstance();
+							pluginsAry.push(queryItem);
+						}		
+						var navigatorContent:NavigatorContent = new NavigatorContent();
+						
+						//添加滚动条
+						var scroller:Scroller = new Scroller();						
+						scroller.percentHeight = 100;
+						scroller.percentWidth = 100;
+						navigatorContent.addElement(scroller);
+						
+						//添加viewPort
+						var group:Group = new Group();
+						group.percentHeight = 100;
+						group.percentWidth = 100;
+						scroller.viewport = group;
+						
+						if(pluginObj.label)
+							navigatorContent.label = pluginObj.label;
+						if(pluginObj.iconBar)
+							queryItem.iconBar = pluginObj.iconBar;
+						if(pluginObj.describe)
+							queryItem.describe = pluginObj.describe;
+						if(pluginObj.id)
+						{
+							queryItem.id = pluginObj.id;
+							navigatorContent.id = pluginObj.id;
+						}
+						queryItem.panel = queryPanel;
+						if(pluginObj.icon)
+						{
+							iconObj[pluginObj.icon] = navigatorContent;
+							navigatorContent.icon = IconUtil.getClass(navigatorContent, String(pluginObj.icon));
+						}	
+						group.addElement(queryItem);
+						tabNavigator.addChild(navigatorContent);	
+						
+						obj = {
+							pluginID:navigatorContent.id,
+							iconBar:queryItem.iconBar,
+							tooltip:navigatorContent.label
+						};
+						dockDatas.push(obj);	
+					}					
+					if(panelObj.selectedIndex != null)
+						tabNavigator.selectedIndex = panelObj.selectedIndex;
+				}
+				DockUtil.getInstance().plugins = dockDatas;
+			}
+				
+			private var dockPanels:Array;
+			protected function xmldecoder1_customPanelNoPluginHandler(event:DataConfigEvent):void
+			{
+				panelsNoTab = [];
+				dockPanels = [];
+				var data:Object = event.data;
+				var ary:Array = data.panel as Array;
+				var len:int = ary.length;
+				for(var i:int = 0; i < len; i++)
+				{
+					var obj:Object;
+					var panelObj:Object = ary[i] as Object;
+					var panelName:String;
+					if(!panelObj.name)
+					{
+						panelName = "com.supermap.framework.dock.FloatPanel";
+					}
+					else
+					{
+						panelName = panelObj.name;
+					}
+					var instance:Class = getDefinitionByName(panelName) as Class;
+					var panel:* = new instance(null) as FloatPanel;
+					panel.setStyle("skinClass", FloatPanelNoTabSkin);
+					if(panelObj.id)
+						panel.id = panelObj.id;
+					if(panelObj.x)
+						panel.x = panelObj.x;
+					if(panelObj.y)
+						panel.y = panelObj.y;
+					if(panelObj.width)
+						panel.width = panelObj.width;
+					if(panelObj.height)
+						panel.height = panelObj.height;
+					if(panelObj.isDragAble)
+						panel.isDragAble = panelObj.isDragAble;
+					if(panelObj.isResizeAble)
+						panel.isResizeAble = panelObj.isResizeAble;
+					var isDockStr:String = panelObj.isDock;
+					var isDock : Boolean = isDockStr == "true" ? true : false;
+					if(isDock)
+						panel.titleWindowState = FloatPanel.DOCK;
+					if(panelObj.icon)
+						panel.icon = panelObj.icon;
+					if(panelObj.title)
+						panel.title = panelObj.title;
+					
+					panel.setStyle("color", 0xffffff);
+					panel.setStyle("fontFamily", "微软雅黑");
+					panel.mouseClickHandler = PanelUtil.mouseClickHandler;
+					panelsNoTab.push(panel);
+					
+					obj = {
+						pluginID:panel.id,
+						iconBar:panel.icon,
+						tooltip:panel.title
+					};
+					dockPanels.push(obj);	
+				}
+				DockUtil.getInstance().panels = dockPanels;
+			}
+
+			public function GetDisplayResource(export : String) : *
+			{
+				var resource : Class = getDefinitionByName(export) as Class;
+				return resource ? new resource() : null;
+			}
+			
+			private var mapContainer:MapContainer; 
+			private var gearContainer:GearContainer;
+			private var templateContainer:TemplateContainer;
+			private var headerBar:BorderContainer;
+			/**
+			 *  加载MapPanel面板
+			 */
+			private var mapPanel:*;
+			protected function xmldecoder1_loadMapPanelHandler(event:DataConfigEvent):void
+			{
+				var ary:Array = event.data as Array;
+				var len:int = ary.length;
+				var panelObj:Object = ary[0] as Object;
+				if(panelObj.name)
+				{
+					var instance:Class = getDefinitionByName(panelObj.name) as Class;
+					mapPanel = new instance(null) as TitleWindow;
+					if(panelObj.id)
+						mapPanel.id = panelObj.id;
+					if(panelObj.icon)
+						mapPanel.icon = panelObj.icon;
+					if(panelObj.title)
+						mapPanel.title = panelObj.title;
+					
+					mapPanel.setStyle("color", 0xffffff);
+					mapPanel.setStyle("fontFamily", "微软雅黑");
+					mapPanel.width = FlexGlobals.topLevelApplication.width;
+					mapPanel.height = FlexGlobals.topLevelApplication.height;
+					FlexGlobals.topLevelApplication.addElementAt(mapPanel, 0);
+					
+					mapContainer = new MapContainer();
+					mapContainer.id = "mapContainer";
+					mapContainer.configURL = "map-config.xml";
+					mapContainer.left = 0;
+					mapContainer.right = 0;
+					mapContainer.top = -47;		
+					mapContainer.bottom = 0;
+					mapPanel.addElement(mapContainer);
+					mapContainer.addEventListener(PluginEvent.MAPPLUGINADDED, mapLoadedHandler);
+					
+					headerBar = new BorderContainer();
+					headerBar.setStyle("skinClass", com.supermap.skins.customSkins.HeaderbarSkin);
+					headerBar.width = mapPanel.width;
+					headerBar.height = 40;
+					headerBar.top = -36;
+					mapPanel.addElement(headerBar);
+					
+					gearContainer = new GearContainer();	
+					gearContainer.map = mapControl;
+					gearContainer.width = mapPanel.width;
+					gearContainer.height = mapPanel.height - 60;
+					mapPanel.addElement(gearContainer);
+					
+					templateContainer = new TemplateContainer();
+					templateContainer.map = mapControl;
+					templateContainer.width = mapPanel.width;
+					templateContainer.height = mapPanel.height - 60;
+					mapPanel.addElement(templateContainer);
+				}
+				BaseEventDispatcher.getInstance().addEventListener(GearEvent.GEAR_TEMPLATE_RESIZE, resizeHandler);
+			}
+			
+			/**
+			 *  获取map并分发到各个插件
+			 */
+			private function mapLoadedHandler(event:PluginEvent):void
+			{
+				var mapContainer:MapContainer = event.data as MapContainer;
+				var map:Map = mapContainer.getMapControl(mapContainer.currentMap.id) as Map;
+				Main.map = map;
+				if(Main.map)
+				{
+					gearContainer.map = Main.map;
+					templateContainer.map = Main.map;
+					//对所有的插件进行map传入 因为layoutContainer里有对map接口
+					if(pluginsAry && pluginsAry.length)
+					{
+						for(var j:int = 0; j < pluginsAry.length; j++)
+						{
+							if(pluginsAry[j].hasOwnProperty("map"))
+								pluginsAry[j].map = Main.map;
+						}
+					}
+				}
+			}
+			
+			private function resizeHandler(event:GearEvent):void
+			{
+				if((event.data.panel is MapPanel))
+				{
+					if(mapPanel.width == FlexGlobals.topLevelApplication.width)
+					{
+						gearContainer.width = mapPanel.width;
+						gearContainer.height = mapPanel.height - 40;
+						mapContainer.width = mapPanel.width - 20;
+						mapContainer.height = mapPanel.height - 40;
+					}
+					else
+					{
+						gearContainer.width = event.data.width;;
+						gearContainer.height = event.data.height - 40;
+						mapContainer.width = event.data.width - 20;
+						mapContainer.height = event.data.height - 40;
+					}		
+				}
+			}
+
+			protected function xmldecoder1_panelVectorDataHandler(event:DataConfigEvent):void
+			{
+				vector = event.data.vectorPanel as Vector.<Object>;
+				panelBar = event.data.panelBar as XMLList;
+			}
+
+			protected function group1_resizeHandler(event:ResizeEvent):void
+			{
+				if(mapPanel)
+				{
+					mapPanel.height = height;
+					headerBar.width = mapPanel.width = width;
+					
+					mapContainer.width = mapPanel.width - 20;
+					mapContainer.height = mapPanel.height - 40;
+					
+					gearContainer.width = mapPanel.width;
+					gearContainer.height = mapPanel.height - 40;
+				}
+				if(managerBar)
+				{
+					managerBar.x = ( FlexGlobals.topLevelApplication.width - managerBar.width ) * .5;
+					managerBar.y = ( FlexGlobals.topLevelApplication.height - managerBar.height ) * .5;
+				}
+			}
+			
+		]]>
+	</fx:Script>
+</s:Group>

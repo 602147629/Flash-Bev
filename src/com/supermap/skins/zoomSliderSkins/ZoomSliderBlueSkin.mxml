@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/////////////////////////////////////////////////////////////////////////////////////////////
+//
+//	Copyright (c) 2013 SuperMap. All Rights Reserved.
+//
+//	Licensed under the Apache License, Version 2.0 (the "License");
+//	you may not use this file except in compliance with the License.
+//	You may obtain a copy of the License at
+//
+//	http://www.apache.org/licenses/LICENSE-2.0
+//
+//	Unless required by applicable law or agreed to in writing, software
+//	distributed under the License is distributed on an  "AS IS" BASIS,
+//	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//	See the License for the specific language governing permissions and
+//	limitations under the License.
+//
+///////////////////////////////////////////////////////////////////////////////////////////// 
+-->
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx">
+	<!-- host component -->
+	<fx:Metadata>
+		/**
+		* ${components_skins_ZoomSliderSkin_attribute_HostComponent_D}
+		*/
+		[HostComponent("com.supermap.web.components.ZoomSlider")]
+	</fx:Metadata>
+	<fx:Declarations>
+		<!---
+		@private
+		-->
+		<mx:NumberFormatter id="numberFormatter" rounding="nearest"/>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[   
+			import com.supermap.web.mapping.CloudLayer;
+			import com.supermap.web.mapping.Layer;
+			import com.supermap.web.resources.SmResource;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			import mx.resources.ResourceManager;
+			
+			import spark.filters.GlowFilter;
+			private var glow:GlowFilter = new GlowFilter(0x000000, 0.5, 10, 10);
+			
+			private function formatSliderDataTip(value:Number):String
+			{  
+				var layers:ArrayCollection = this.hostComponent.map.layers as ArrayCollection;
+				var currentLayer:CloudLayer = layers[0] as CloudLayer;
+				var scales:Array = hostComponent.map.scales;
+				if(currentLayer && currentLayer.resolutions)
+				{
+					var resolution:Number = currentLayer.resolutions[value]; 
+					return resolution.toString();
+				}
+				else if(scales && scales.length)
+				{
+					var scale:Number = scales[value]; 
+					return "1:" + 1 / scale;
+				}
+				return null;
+			}
+			
+			private function rollOverHandler(evt:MouseEvent):void
+			{
+				//Button(evt.currentTarget).filters = [glow];
+			}
+			
+			private function rollOutHandler(evt:MouseEvent):void
+			{
+				//Button(evt.currentTarget).filters = null;
+			}
+
+			//重新刷新一次 避免闪烁
+			protected function slider_creationCompleteHandler(event:FlexEvent):void
+			{
+				this.hostComponent.refresh();
+			}
+			
+			private function getResolutionLength():Number
+			{
+				return this.hostComponent.map.scales.length;
+			}
+			
+			private function getCurrentResolution():int
+			{
+				return this.hostComponent.map.resolutions.indexOf(this.hostComponent.map.resolution);
+			}
+
+		]]>
+	</fx:Script>
+	
+	<s:states>
+		<s:State name="normal"/>
+		<s:State name="disabled"/>
+		<s:State name="normalWithSlider"/>
+		<s:State name="disabledWithSlider"/>
+	</s:states>  
+	
+	<s:Rect bottom="0"
+			left="0"
+			radiusX="3"
+			radiusY="3"
+			right="-3"
+			top="0" >
+		<s:fill>  
+			<s:SolidColor color="0" alpha="0.6"/>
+		</s:fill>
+		<s:stroke>
+			<s:SolidColorStroke weight="1" alpha="1" color="0xffffff"/> 
+		</s:stroke>
+	</s:Rect> 
+	
+	<s:VGroup gap="2"  horizontalAlign="center"           
+			  minHeight="34"
+			  paddingBottom="2"
+			  paddingLeft="2"
+			  paddingRight="0"
+			  paddingTop="2">
+		
+		<s:Button id="zoomInButton"
+				  enabled.disabled="false"
+				  enabled.disabledWithSlider="false"
+				  skinClass="{ZoomSliderZoomInButtonSkin}"
+				  rollOver="rollOverHandler(event)"
+				  rollOut="rollOutHandler(event)"
+				  toolTip="放大一级"/>
+		<!---
+		${components_skins_ZoomSliderSkin_attribute_slider_D}
+		-->
+		<mx:VSlider id="slider" 
+					dataTipFormatFunction="formatSliderDataTip"
+					dataTipPlacement="right"
+					enabled.disabled="false"
+					enabled.disabledWithSlider="false"
+					enabled.normalWithSlider="true"
+					
+					includeIn="normalWithSlider,disabledWithSlider"
+					liveDragging="false"
+					trackSkin="{ZoomSliderTrackSkin}"
+					thumbSkin="{ZoomSliderThumbSkin}"
+					width="5"
+					value="{getCurrentResolution()}"
+					height="{getResolutionLength() * this.hostComponent.sliderHeightParam}"
+					maximum="{getResolutionLength() - 1}"
+					
+					showDataTip="true"
+					snapInterval="1"
+					tickColor="#FFFFFF"
+					tickInterval="1"  
+					tickThickness="2"
+					tickOffset="4"
+					tickLength="9"
+					labelOffset="-50"
+					
+				    creationComplete="slider_creationCompleteHandler(event)"
+					/>
+		
+		<s:Button id="zoomOutButton"
+				  enabled.disabled="false"
+				  enabled.disabledWithSlider="false"
+				  skinClass="{ZoomSliderZoomOutButtonSkin}"
+				  rollOver="rollOverHandler(event)"
+				  rollOut="rollOutHandler(event)"
+				  toolTip="缩小一级"/>
+	</s:VGroup>
+	
+</s:Skin>

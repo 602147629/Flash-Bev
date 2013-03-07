@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/////////////////////////////////////////////////////////////////////////////////////////////
+//
+//	Copyright (c) 2013 SuperMap. All Rights Reserved.
+//
+//	Licensed under the Apache License, Version 2.0 (the "License");
+//	you may not use this file except in compliance with the License.
+//	You may obtain a copy of the License at
+//
+//	http://www.apache.org/licenses/LICENSE-2.0
+//
+//	Unless required by applicable law or agreed to in writing, software
+//	distributed under the License is distributed on an  "AS IS" BASIS,
+//	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//	See the License for the specific language governing permissions and
+//	limitations under the License.
+//
+///////////////////////////////////////////////////////////////////////////////////////////// 
+-->
+<layout:LayoutContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   width="100%"
+				   height="100%"
+				   xmlns:layout="com.supermap.containers.*"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   creationComplete="bordercontainer1_creationCompleteHandler(event)"
+				   xmlns:containers="com.supermap.framework.containers.*" backgroundAlpha="0">
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		@namespace containers "com.supermap.framework.containers.*";
+		.verticalScrollBarStyleName
+		{
+			thumb-skin:ClassReference("com.supermap.skins.scrollBarSkins.DataGridScrollBarThumb_V_skin");
+			track-skin:ClassReference("com.supermap.skins.scrollBarSkins.ScrollBarTrack_DG_skin");
+						
+		}
+		
+	</fx:Style>
+	<fx:Script>
+		<![CDATA[
+			import com.supermap.events.ContainerEvent;
+			import com.supermap.skins.customSkins.ChartContainerSkin;
+			import com.supermap.utils.HashTable;
+			import com.supermap.web.mapping.Map;
+			
+			import mx.core.IVisualElement;
+			import mx.events.FlexEvent;
+			
+			public var tabs:RoloTab;
+			public var map:Map;		
+			
+			private var hashtable:HashTable = new HashTable();
+			
+			protected function bordercontainer1_creationCompleteHandler(event:FlexEvent):void
+			{				
+				tabs.addEventListener(TabChangeEvent.TAB_CLICK,changeChartContainer);
+				tabs.addEventListener(TabChangeEvent.TAB_FOUCS_CHANGE,changeChartContainer);
+				EventBus.addEventListener(ContainerEvent.CONTAINER_ADD, containerAddHandler);
+				EventBus.addEventListener(ContainerEvent.CONTAINER_DELETE, containerDeleteHandler);
+			}
+			
+			private function containerDeleteHandler(event:ContainerEvent):void
+			{
+				EventBus.dispatchBaseEvent(new TabChangeEvent(TabChangeEvent.TAB_DELETE,event.containerTitle));
+				this.removeChartResultContainer(event.containerTitle);
+			}
+
+			private function containerAddHandler(event:ContainerEvent):void
+			{				
+				EventBus.dispatchBaseEvent(new TabChangeEvent(TabChangeEvent.TAB_ADD,event.containerTitle));
+				EventBus.dispatchBaseEvent(new DivideBoxEvent(DivideBoxEvent.DIVIDEBOX_OPEN,event.containerTitle));
+				var container:SkinableChartContainer = new SkinableChartContainer();
+				container.percentHeight = 100;
+				container.percentWidth = 100;
+				container.setStyle("skinClass",ChartContainerSkin);//暂时使用默认背景色 白色。。。
+				container.addEventListener("closeTabEvent",closeTabEventHandler);
+				container.setStyle("backgroundAlpha", 0);
+				container.setStyle("contentBackgroundAlpha", 0);
+				//container.closeGroup.visible = false;//关闭按钮不可见
+				var featureDataGrid:CustomFeatureDataGrid = event.resultContainer as CustomFeatureDataGrid;
+				featureDataGrid.setStyle("oddRowAlpha",0.2);
+				featureDataGrid.setStyle("evenRowAlpha",0.2);
+				if(featureDataGrid)
+				{
+					//featureDataGrid.setStyle("verticalScrollBarStyleName","verticalScrollBarStyleName");					
+					container.addElement(featureDataGrid);	
+				}
+				
+				this.holder.addElement(container);
+				this.hashtable.add(event.containerTitle, container);
+				
+				this.cursorManager.removeBusyCursor();
+			}
+			
+			/**
+			 *  默认后添加的先显示出来
+			 */
+			private function setCurrentContainerVisible(tabTitle:String):void
+			{
+				for(var i:int = 0; i < this.holder.numElements; i++)
+				{
+					var container:SkinableChartContainer = this.holder.getElementAt(i) as SkinableChartContainer;
+					if(this.hashtable.retureKey(container) == tabTitle)
+					{
+						container.visible = true;						
+					}
+					else
+					{
+						container.visible = false;
+					}
+				}
+			}
+			
+			/**
+			 *  结果显示容器移除
+			 */
+			private function removeChartResultContainer(tabTitle:String):void
+			{
+				if(this.hashtable.find(tabTitle))
+				{
+					var skinableChartContainer:SkinableChartContainer = this.hashtable.find(tabTitle) as SkinableChartContainer;
+					this.hashtable.remove(tabTitle);
+					if(this.holder.contains(skinableChartContainer))
+						this.holder.removeElement(skinableChartContainer);					
+				}
+			}
+			
+			/**
+			 *  tab点击事件 切换tab选中状态
+			 */
+			private function changeChartContainer(event:TabChangeEvent):void
+			{
+				var title:String = event.tabTitle as String;
+				setCurrentContainerVisible(title);
+			}
+		
+			/**
+			 *  关闭该区域 并派发事件关闭该区域对于的tab标签
+			 */
+			protected function closeTabEventHandler(event:Event):void
+			{				
+				if(this.hashtable.contains(event.target) && this.holder.contains(event.target as DisplayObject))
+				{
+					this.holder.removeElement(event.target as IVisualElement);
+					var tabTitleDel:String = hashtable.retureKey(event.target) as String;
+					this.hashtable.remove(tabTitleDel);
+					EventBus.dispatchBaseEvent(new TabChangeEvent(TabChangeEvent.TAB_DELETE,tabTitleDel));
+				}				
+			}
+
+		]]>
+	</fx:Script>
+
+	<s:BorderContainer  backgroundAlpha="0.4" contentBackgroundAlpha="0.5" id="holder" height="100%" width="100%" borderVisible="false" fontFamily="微软雅黑">	
+	</s:BorderContainer>
+	
+</layout:LayoutContainer>

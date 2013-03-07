@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<config>
+	<!--要查询的图层 云服务-->
+	<queryFilterName label="学校"  icon="assets/query/school.png" description="北京城区主要学校的名称及分布情况" headerColor="0x53aecc"/>
+	<queryFilterName label="医院" icon="assets/query/hospital.png" description="北京城区主要医院的名称及分布情况" headerColor="0x69cc52"/>
+	<queryFilterName label="银行" icon="assets/query/bank.png" description="北京城区主要银行的名称及分布情况" headerColor="0xd94a4a"/>
+	<queryFilterName label="超市" icon="assets/query/supermarket.png" description="北京城区主要超市的名称及分布情况" headerColor="0x9952cc"/>
+</config>

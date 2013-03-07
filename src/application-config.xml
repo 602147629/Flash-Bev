@@ -1,0 +1,100 @@
+﻿<?xml version="1.0"?>
+<configuration>
+
+	<!--查询面板容器(与舞台窗口一致)-->
+	<!--<panel id="queryPanel" 
+		x="130" y="100" width="512" height="295" 
+		selectedIndex="0"
+		isDragAble="true"
+		isResizeAble="true" 
+		maxTabNum="5"
+		name="com.supermap.containers.QueryPanel"
+		iconBar="assets/panel/query.png"
+		describe="综合查询面板"
+		title="查询">		
+		<plugin id="qContainer" 
+			name="com.supermap.gears.query.QueryContainer"
+			label="查询"
+			iconBar="assets/panel/query.png"
+			describe="查询"/>			
+	</panel>-->
+	
+	<!--地图面板容器(与舞台窗口一致)-->
+    <panel id="MapPanel" title="北京超图" name="com.supermap.containers.MapPanel"
+        icon="assets/school.png"
+		iconBar="assets/panel/georess.png"
+		describe="地图显示面板">
+		<!--模块功能容器(与地图显示窗口一致)-->
+		<gearcontainer id="gearContianer">
+			<gear id="navigation"
+				left="10" top="20"
+				url="com/supermap/gears/navigator/NavigationGear.swf"/>
+			<gear id="overviewMap"
+				right="5" bottom="5"
+				url="com/supermap/gears/overviewmap/OverviewMapGear.swf"/>
+		</gearcontainer>
+	</panel>
+	
+	<panel id="lePa12nel" 
+			height="240" width="350" x="150" y="150" describe="书签面板" 
+			iconBar="assets/panel/bookmark.png"
+			name="com.supermap.framework.dock.FloatPanel"
+			title="书签"
+			>
+		<plugin id="resultContainer" 
+			name="com.supermap.gears.bookmark.BookmarkContainer"
+			label="书签"
+			iconBar="assets/panel/bookmark.png"
+			describe="书签面板"
+			/>
+	</panel>
+	
+	<!--name="com.supermap.framework.dock.FloatPanel"-->
+	<panel id="lel"  iconBar="assets/panel/draw.png" 
+			name="com.supermap.framework.dock.FloatPanel"
+			describe="标绘面板" 
+			title="标绘"
+			height="340" width="450" x="800" y="150">
+		<plugin id="drawPointContainer"
+			name="com.supermap.gears.draw.DrawPointContainer"
+			label="点标绘"
+			iconBar="assets/panel/drawPoint.png"
+			describe="点要素标绘标签页"
+			/>
+		<plugin id="drawLineContainer" 
+			name="com.supermap.gears.draw.DrawLineContainer"
+			label="线标绘"
+			iconBar="assets/panel/drawLine.png"
+			describe="这是一个银行查询面板000"
+			/>
+		<plugin id="drawRegionContainer"
+			name="com.supermap.gears.draw.DrawRegionContainer"
+			label="面标绘"
+			iconBar="assets/panel/drawRegion.png"
+			describe="点要素标绘标签页"
+			/>
+		<plugin id="drawTextContainer" 
+			name="com.supermap.gears.draw.DrawTextContainer"
+			label="文本"
+			iconBar="assets/panel/drawText.png"
+			describe="这是一个银行查询面板000"
+			/>
+	</panel>
+	
+	<panel id="printPanel"  title="打印" 
+			name="com.supermap.framework.dock.FloatPanel"
+			iconBar="assets/panel/print.png"
+			height="510" width="1050" x="10" y="10" 
+			describe="打印">
+		<plugin id="printContainer" 
+			name="com.supermap.gears.print.PrintContainer"
+			label="打印"			
+			iconBar="assets/panel/print.png"
+			describe="打印面板"
+			/>
+	</panel>
+	
+	<!--各种面板管理入口 这里不用设置宽高 本身的宽高会根据这个值做适当的计算 给出一个适合屏幕的宽高效果-->		
+	<panelManangerBar id="panelBar" left="500" bottom="25" title="面板管理"  name="com.supermap.containers.component.PanelConfigBar"	/>	
+	
+</configuration>

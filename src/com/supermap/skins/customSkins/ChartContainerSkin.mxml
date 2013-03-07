@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/////////////////////////////////////////////////////////////////////////////////////////////
+//
+//	Copyright (c) 2013 SuperMap. All Rights Reserved.
+//
+//	Licensed under the Apache License, Version 2.0 (the "License");
+//	you may not use this file except in compliance with the License.
+//	You may obtain a copy of the License at
+//
+//	http://www.apache.org/licenses/LICENSE-2.0
+//
+//	Unless required by applicable law or agreed to in writing, software
+//	distributed under the License is distributed on an  "AS IS" BASIS,
+//	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//	See the License for the specific language governing permissions and
+//	limitations under the License.
+//
+///////////////////////////////////////////////////////////////////////////////////////////// 
+-->
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark" 
+    xmlns:fb="http://ns.adobe.com/flashbuilder/2009" alpha.disabled="0.5" xmlns:mx="library://ns.adobe.com/flex/mx" >
+
+    <fx:Metadata>
+    <![CDATA[  
+        [HostComponent("com.supermap.containers.SkinableChartContainer")]
+    ]]>
+    </fx:Metadata> 
+    <s:states>
+        <s:State name="normal" />
+        <s:State name="disabled" />
+    </s:states>
+
+    <s:Rect id="background" left="0" right="0" top="0" bottom="0">
+        <s:fill>
+            <!--- @private -->
+            <s:SolidColor id="bgFill" color="{getStyle('backgroundColor')}"/>
+        </s:fill>
+    </s:Rect>
+
+    <s:Group id="contentGroup" left="0" right="0" top="0" bottom="0" minWidth="0" minHeight="0">
+        <s:layout>
+            <s:BasicLayout/>
+        </s:layout>
+    </s:Group>
+
+	<!--<s:Group id="closeGroup" right="0" top="2"  minWidth="12" minHeight="12">		
+		<s:Rect>
+			<s:fill>
+				<s:SolidColor color="{getStyle('focusColor')}"/>				
+			</s:fill>
+		</s:Rect>
+		<s:Line xFrom="0" xTo="10" yTo="10" yFrom="0">
+			<s:stroke>
+				<s:SolidColorStroke color="{getStyle('focusColor')}"/>
+			</s:stroke>
+		</s:Line>
+		<s:Line xFrom="0" xTo="10" yTo="0" yFrom="10">
+			<s:stroke>
+				<s:SolidColorStroke color="{getStyle('focusColor')}"/>
+			</s:stroke>
+		</s:Line>
+	</s:Group>-->
+	
+</s:Skin>

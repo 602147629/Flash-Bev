@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/////////////////////////////////////////////////////////////////////////////////////////////
+//
+//	Copyright (c) 2013 SuperMap. All Rights Reserved.
+//
+//	Licensed under the Apache License, Version 2.0 (the "License");
+//	you may not use this file except in compliance with the License.
+//	You may obtain a copy of the License at
+//
+//	http://www.apache.org/licenses/LICENSE-2.0
+//
+//	Unless required by applicable law or agreed to in writing, software
+//	distributed under the License is distributed on an  "AS IS" BASIS,
+//	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//	See the License for the specific language governing permissions and
+//	limitations under the License.
+//
+///////////////////////////////////////////////////////////////////////////////////////////// 
+-->
+<containers:LayoutContainer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+							xmlns:s="library://ns.adobe.com/flex/spark" 
+							xmlns:mx="library://ns.adobe.com/flex/mx" 
+							xmlns:containers="com.supermap.containers.*" 
+							xmlns:bookmark="com.supermap.gears.bookmark.*"
+							creationComplete="layoutcontainer1_creationCompleteHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import com.supermap.web.core.Rectangle2D;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			
+			import spark.events.TextOperationEvent;
+			
+			private var defaultText:String = "请在此处输入书签名称......";
+			[Bindable]
+			private var bookmarkDataprovider:ArrayCollection = new ArrayCollection();				
+			private var bookmarkSOAL:ArrayCollection; 
+			
+			private var bookmarkSO:SharedObject;
+			
+			private var _serializedMarks:Array = null;
+			
+			protected function layoutcontainer1_creationCompleteHandler(event:FlexEvent):void
+			{
+				bookmarkSO = SharedObject.getLocal("bookmarks");
+				loadBookmarks();	
+			}
+			
+			private function loadBookmarks():void
+			{
+				var bookmark:Bookmark = new Bookmark();
+				bookmark.name = "朝阳区";				
+				bookmark.bounds = new Rectangle2D(12955688.870057188,4844218.386473422,12994518.878953189,4872413.181110223);
+				bookmarkDataprovider.addItem(bookmark);
+				
+				var bookmark2:Bookmark = new Bookmark();
+				bookmark2.name = "海淀区";
+				bookmark2.bounds = new Rectangle2D(12921418.996196067,4855935.397955565,12960249.005092068,4884130.192592366);
+				bookmarkDataprovider.addItem(bookmark2);
+				
+				var bookmark3:Bookmark = new Bookmark();
+				bookmark3.name = "东城西城区";
+				bookmark3.bounds = new Rectangle2D(12937939.202439979,4840137.437528352,12976769.21133598,4868332.232165153);
+				bookmarkDataprovider.addItem(bookmark3);
+				
+				var bookmark4:Bookmark = new Bookmark();
+				bookmark4.name = "石景山区";
+				bookmark4.bounds = new Rectangle2D(12911921.948794665,4842804.6574497605,12950751.957690665,4870999.452086561);
+				bookmarkDataprovider.addItem(bookmark4);
+				
+				var bookmark5:Bookmark = new Bookmark();
+				bookmark5.name = "丰台区";
+				bookmark5.bounds = new Rectangle2D(12921409.478061866,4824556.466076961,12960239.486957867,4852751.260713762);
+				//bookmarkDataprovider.addItem(bookmark5);
+				
+				if (getShareObject)
+				{
+					var addAry:Array = bookmarkSO.data.bookmarks as Array;
+					bookmarkSOAL = new ArrayCollection(_serializedMarks);
+				}
+				else
+				{
+					bookmarkSOAL = new ArrayCollection();
+				}				
+			}
+			
+			public function get getShareObject():Array
+			{
+				if(bookmarkSO &&　bookmarkSO.data　&& bookmarkSO.data.bookmarks)
+					_serializedMarks = bookmarkSO.data.bookmarks;
+				if(_serializedMarks)
+				{
+					for(var i:int = 0; i < _serializedMarks.length; i++)
+					{
+						var mark:Object = _serializedMarks[i];
+						var bound:String = mark.bounds.bbox as String;
+						
+						var bounds:Rectangle2D = new Rectangle2D();
+						bounds.bbox = bound;
+						
+						var bookmark:Bookmark = new Bookmark();
+						bookmark.bounds = bounds;
+						bookmark.name = mark.name;
+						bookmarkDataprovider.addItem(bookmark);
+						
+					}
+				}
+				return _serializedMarks;
+			}
+			
+			private function showBookmark(event:Event):void
+			{
+				var bookmark:Bookmark = (event.target as BookmarkItemRenderer).data as Bookmark;
+				map.viewBounds = bookmark.bounds;
+			}
+			
+			private function addBookmark():void
+			{
+				var name:String = txtName.text;
+				if (name && name != defaultText)
+				{
+					var ext:Rectangle2D = map.viewBounds;
+					var bookmark:Bookmark = new Bookmark();
+					bookmark.name = name;
+					bookmark.bounds = ext.clone();
+					bookmarkDataprovider.addItem(bookmark);
+					bookmarkSOAL.addItem(addObj(bookmark));					
+					saveBookmarks();
+					txtName.text = defaultText;					
+				}				
+			}
+			
+			private function addObj(bookmark:Bookmark):Object
+			{
+				var name:String = bookmark.name;
+				var bounds:Rectangle2D = bookmark.bounds;
+				var data:Object = 
+					{
+						name: name,
+						bounds: bounds						
+					}
+				return data;
+			}
+			
+			private function saveBookmarks():void
+			{
+				if (bookmarkSO)
+				{
+					bookmarkSO.data.bookmarks = this.bookmarkSOAL.toArray();
+					bookmarkSO.flush();
+				}
+			}
+			
+			private function removeBookmark(event:Event):void
+			{
+				var bookmark:Bookmark = (event.target as BookmarkItemRenderer).data as Bookmark;
+				var len:int = bookmarkDataprovider.length;
+				for(var i:int = 0; i < len; i++)
+				{
+					if(bookmark.name == bookmarkDataprovider[i].name)
+					{
+						bookmarkDataprovider.removeItemAt(i);
+						break;
+					}
+				}
+				var SOLen:int = bookmarkSOAL.length;
+				for(var j:int = 0; j < SOLen; j++)
+				{
+					if(bookmark.name == bookmarkSOAL[j].name)
+					{
+						bookmarkSOAL.removeItemAt(j);
+					}
+				}
+				saveBookmarks();
+			}
+			
+			private function focusHandler(event:Event):void
+			{
+				txtName.text = "";
+			}
+			
+			private function removeFocusHandler(event:Event):void
+			{
+				txtName.text = defaultText;
+			}
+			
+			private function changeTextHandler(event:TextOperationEvent):void
+			{
+				txtName.text = (event.target as TextInput).text;
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:BorderContainer id="borderContainer" borderAlpha="0.5" left="20"  top="20" width="300" height="132"  cornerRadius="5">
+		<s:Group id="bkmList" width="100%" height="100%"  >
+			<s:Scroller width="100%" height="100%">
+				<bookmark:BookmarkDataGroup id="bookmarkDG"
+											bookmarkClick="showBookmark(event)"	
+											bookmarkDelete="removeBookmark(event)"
+											dataProvider="{bookmarkDataprovider}">
+					<bookmark:layout>
+						<s:VerticalLayout gap="3"
+										  horizontalAlign="justify"
+										  useVirtualLayout="true"/>
+					</bookmark:layout>
+				</bookmark:BookmarkDataGroup>
+			</s:Scroller>
+		</s:Group>
+	</s:BorderContainer>
+	
+	<s:HGroup  x="20" y="160" width="200" height="25" gap="80">
+		<s:TextInput id="txtName"  change="changeTextHandler(event)" width="120"   text="此处输入书签名称......"  click="focusHandler(event)"/>
+		<s:Button  click="addBookmark()" height="25"  width="50" label="添加" fontFamily="微软雅黑" fontSize="12" fontWeight="bold"  />
+	</s:HGroup>	
+	
+</containers:LayoutContainer>

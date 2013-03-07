@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/////////////////////////////////////////////////////////////////////////////////////////////
+//
+//	Copyright (c) 2013 SuperMap. All Rights Reserved.
+//
+//	Licensed under the Apache License, Version 2.0 (the "License");
+//	you may not use this file except in compliance with the License.
+//	You may obtain a copy of the License at
+//
+//	http://www.apache.org/licenses/LICENSE-2.0
+//
+//	Unless required by applicable law or agreed to in writing, software
+//	distributed under the License is distributed on an  "AS IS" BASIS,
+//	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//	See the License for the specific language governing permissions and
+//	limitations under the License.
+//
+///////////////////////////////////////////////////////////////////////////////////////////// 
+-->
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark" 
+    xmlns:fb="http://ns.adobe.com/flashbuilder/2009" alpha.disabled="0.5" xmlns:mx="library://ns.adobe.com/flex/mx">
+
+    <fx:Metadata>         
+        [HostComponent("com.supermap.gears.preGears.toolbar.ImageContainer")]   
+    </fx:Metadata> 
+    
+    <fx:Script fb:purpose="styling">
+        <![CDATA[         
+
+            override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number) : void
+            {
+
+                if (isNaN(getStyle("backgroundColor")))
+                {
+                    background.visible = false;
+                }
+                else
+                {
+                    background.visible = true;
+                    bgFill.color = 0xFFFFFF;
+                    bgFill.alpha = 0;
+                }
+                
+                super.updateDisplayList(unscaledWidth, unscaledHeight);
+            }
+        ]]>        
+    </fx:Script>
+    
+    <s:states>
+        <s:State name="normal" />
+        <s:State name="disabled" />
+    </s:states>
+
+    <s:Rect id="background" left="0" right="0" top="0" bottom="0" visible="false" >
+        <s:fill>
+            <!--- @private -->
+            <s:SolidColor id="bgFill" color="#FFFFFF" alpha="0"/>
+        </s:fill>
+    </s:Rect>
+	
+	<s:Ellipse width="100%" height="100%" visible="true">
+		<s:fill>
+			<s:LinearGradient x="15.9976" scaleX="31.9966" rotation="90">
+				<s:GradientEntry color="#C9C9C9" alpha="0.9"/><!--稍微淡一点#5f5f5f-->
+				<s:GradientEntry color="#333333" ratio="0.5"/><!--稍微浓一点#101010-->
+			</s:LinearGradient>
+		</s:fill>
+	</s:Ellipse>
+
+	<s:Rect width="100%" height="100%" visible="false">
+		<s:fill>
+			<s:SolidColor color="0x000000"/>			
+		</s:fill>
+		<s:stroke>
+			<s:SolidColorStroke color="0xffffff" weight="0.5"/>
+		</s:stroke>
+	</s:Rect>
+	
+    <s:Group id="contentGroup" left="0" right="0" top="0" bottom="0" minWidth="0" minHeight="0">
+        <s:layout>
+            <s:BasicLayout/>
+        </s:layout>		
+    </s:Group>
+	
+	<mx:Image source="{hostComponent.imgSource}"  id="imageSource" left="0" right="0" top="0" bottom="0"/>
+
+</s:Skin>

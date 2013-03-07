@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/////////////////////////////////////////////////////////////////////////////////////////////
+//
+//	Copyright (c) 2013 SuperMap. All Rights Reserved.
+//
+//	Licensed under the Apache License, Version 2.0 (the "License");
+//	you may not use this file except in compliance with the License.
+//	You may obtain a copy of the License at
+//
+//	http://www.apache.org/licenses/LICENSE-2.0
+//
+//	Unless required by applicable law or agreed to in writing, software
+//	distributed under the License is distributed on an  "AS IS" BASIS,
+//	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//	See the License for the specific language governing permissions and
+//	limitations under the License.
+//
+///////////////////////////////////////////////////////////////////////////////////////////// 
+-->
+<!---
+该组件用于定义结果显示容器。RoloTabContainer 容器内部载有自定义的 Tab 容器——RoloTab，
+Bev 右侧面板中列出的每个功能的运行结果，均会存放于 RoloTab 选项卡中，然后加载到该容器显示。
+-->
+<layout:LayoutContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:rolotab="com.supermap.ui.layout.rolotab.*"	
+		 xmlns:layout="com.supermap.containers.*"
+		 xmlns:tabBase="com.supermap.framework.core.tabBase.*"
+		 creationComplete="group1_creationCompleteHandler(event)" xmlns:tabBase1="com.supermap.gears.tabBase.*">
+	<fx:Script>
+		<![CDATA[
+			import com.supermap.events.DivideBoxEvent;
+			import com.supermap.events.TabChangeEvent;
+			import com.supermap.events.ViewerEventDispatcher;
+			import com.supermap.gears.tabBase.tabObj;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			import mx.events.ResizeEvent;
+			
+			[Bindable]
+			private var textItems:ArrayCollection = new ArrayCollection(); 
+			
+			protected function group1_creationCompleteHandler(event:FlexEvent):void
+			{
+				EventBus.addEventListener(TabChangeEvent.TAB_ADD,tabAddFun);
+				EventBus.addEventListener(TabChangeEvent.TAB_DELETE,tabDeleteFun);	
+				EventBus.addEventListener(TabChangeEvent.TAB_FOUCS_CHANGE,setTabFoucsFun);	
+			}
+			
+			private function setTabFoucsFun(event:TabChangeEvent):void
+			{
+				if(event.tabTitle)
+					this.tabs.setSelectedTab(event.tabTitle as String);
+			}
+			
+			private function tabAddFun(event:TabChangeEvent):void
+			{
+				var tabTitle:String = event.tabTitle as String;
+					
+				for(var i:int = 0; i< textItems.length; i++)
+				{
+					var contact:tabObj = textItems.getItemAt(i) as tabObj;
+					if(contact && contact.title == tabTitle)
+						return;
+				}
+				textItems.addItem(new tabObj(tabTitle));
+				//传数据到ChartContainer里 创建一个对应的区域
+				//ViewerEventDispatcher.dispatchEvent(new ContainerEvent(ContainerEvent.CONTAINER_ADD, tabTitle));
+			}
+			
+			/**
+			 *  接收来自右侧伸缩框里的 清除 删除掉响应的tab后 派发事件 再删除相应的统计区域
+			 */
+			private function tabDeleteFun(event:TabChangeEvent):void
+			{
+				var delTabTitle:String = event.tabTitle as String;
+				for(var i:int = 0; i < textItems.length; i++)
+				{
+					var contact:tabObj = textItems.getItemAt(i) as tabObj;					
+					if(contact.title == delTabTitle)
+					{
+						textItems.removeItemAt(i);
+						tabs.dataProvider = textItems;
+						if(textItems.length == 0)
+							EventBus.dispatchBaseEvent(new DivideBoxEvent(DivideBoxEvent.DIVIDEBOX_CLOSE,delTabTitle));
+					}	
+				}
+			}
+
+			/**
+			 *  此事件在tabSkin里监听
+			 */
+			protected function tabs_resizeHandler(event:ResizeEvent):void
+			{
+				var tabWidth:Number = this.width;
+				EventBus.dispatchEvent(new TabChangeEvent(TabChangeEvent.TAB_WH_CHANGE, String(tabWidth)));
+			}
+
+		]]>
+	</fx:Script>
+	<!---自定义选项卡，用于承载显示结果-->
+	<tabBase1:RoloTab id="tabs" height="100%" dataProvider="{textItems}" backgroundColor="{getStyle('backgroundColor')}" backgroundAlpha="{getStyle('backgroundAlpha')}" valuePropertyName="title" resize="tabs_resizeHandler(event)"/><!--valuePictureName = "picture" 属性暂不开放-->	
+</layout:LayoutContainer>

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/////////////////////////////////////////////////////////////////////////////////////////////
+//
+//	Copyright (c) 2013 SuperMap. All Rights Reserved.
+//
+//	Licensed under the Apache License, Version 2.0 (the "License");
+//	you may not use this file except in compliance with the License.
+//	You may obtain a copy of the License at
+//
+//	http://www.apache.org/licenses/LICENSE-2.0
+//
+//	Unless required by applicable law or agreed to in writing, software
+//	distributed under the License is distributed on an  "AS IS" BASIS,
+//	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//	See the License for the specific language governing permissions and
+//	limitations under the License.
+//
+///////////////////////////////////////////////////////////////////////////////////////////// 
+-->
+<containers:LayoutContainer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+							xmlns:s="library://ns.adobe.com/flex/spark" 
+							xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:containers="com.supermap.containers.*"
+							width="100%" xmlns:customSkins="com.supermap.skins.customSkins.*"
+							creationComplete="layoutcontainer1_creationCompleteHandler(event)">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			protected function drawBtn_clickHandler(event:MouseEvent):void
+			{
+				var vo:Object = {
+						hasBackground:hasBackground.selected,
+						hasTextBorder:hasTextBorder.selected,
+						hasUnderLine:hasUnderLine.selected,
+						borderStyleColor:borderStyleColor.selectedColor,
+						fontColor:fontColor.selectedColor,
+						backGroundColor:backGroundColor.selectedColor,
+						fontWeight:fontWeight.value,
+						fontFamily:fontFamily.selectedItem
+				};
+				
+				DrawUtil.drawTextFeature(vo, map);
+			}
+			
+			protected function clear_clickHandler(event:MouseEvent):void
+			{
+				DrawUtil.clear();
+			}
+			
+			protected function layoutcontainer1_creationCompleteHandler(event:FlexEvent):void
+			{
+				DrawUtil.map = map;
+				DrawUtil.setFeaturesLayer();
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<!--布局设置-->
+	<containers:layout>
+		<s:VerticalLayout gap="5" paddingTop="15" paddingLeft="15" paddingRight="15" />
+	</containers:layout>
+	
+	<customSkins:ContentContainer width="100%" skinClass="com.supermap.skins.customSkins.CustomContentContainerSkin">
+		<s:HGroup gap="15">
+			<s:CheckBox label="背景" height="25" selected="true" id="hasBackground" skinClass="com.supermap.gears.query.queryContainer.CheckBoxSkin"
+						/>
+			<s:CheckBox label="边框" height="25"  id="hasTextBorder" skinClass="com.supermap.gears.query.queryContainer.CheckBoxSkin"
+						/>
+			<s:CheckBox label="下划线" height="25" id="hasUnderLine" skinClass="com.supermap.gears.query.queryContainer.CheckBoxSkin"
+						/>
+		</s:HGroup>
+	</customSkins:ContentContainer>
+	
+	<customSkins:ContentContainer width="100%" skinClass="com.supermap.skins.customSkins.CustomContentContainerSkin">
+		<customSkins:layout>
+			<s:HorizontalLayout gap="15" paddingTop="10" paddingBottom="10" paddingLeft="15"/>
+		</customSkins:layout>
+		<s:HGroup gap="10" verticalCenter="0" verticalAlign="middle">
+			<mx:ColorPicker id="fontColor" width="50" height="15" selectedColor="0x00FF00"  />
+			<s:Label text="字体颜色" fontFamily="微软雅黑" height="22" verticalAlign="middle" color="0"/>
+		</s:HGroup>
+		<s:HGroup gap="10" verticalCenter="0" verticalAlign="middle">
+			<mx:ColorPicker id="backGroundColor" width="50" height="15"  selectedColor="0x0066FF" />
+			<s:Label text="背景色" fontFamily="微软雅黑" height="22" verticalAlign="middle" color="0"/>
+		</s:HGroup>
+		<s:HGroup gap="10" verticalCenter="0" verticalAlign="middle">
+			<mx:ColorPicker id="borderStyleColor" width="50" height="15"  selectedColor="0x000000" />
+			<s:Label text="边框色" fontFamily="微软雅黑" height="22" verticalAlign="middle" color="0"/>
+		</s:HGroup>
+	</customSkins:ContentContainer>
+	
+	<customSkins:ContentContainer width="100%" skinClass="com.supermap.skins.customSkins.CustomContentContainerSkin">
+		<s:Label text="字体大小"  fontFamily="微软雅黑" height="22" verticalAlign="middle" color="0"/>
+		<s:HGroup paddingBottom="20">
+			<s:HSlider id="fontWeight" liveDragging="true" skinClass="com.supermap.skins.sliderSkins.HSliderSkin" maximum="50" 
+					   focusEnabled="false" minimum="0"
+					   snapInterval="1" value="30" width="150" />
+		</s:HGroup>
+	</customSkins:ContentContainer>
+	
+	<customSkins:ContentContainer width="100%" skinClass="com.supermap.skins.customSkins.CustomContentContainerSkin">
+		<s:Label text="字体"  fontFamily="微软雅黑" height="22" verticalAlign="middle" color="0"/>
+		<s:HGroup verticalCenter="0" verticalAlign="middle" >
+			<s:DropDownList id="fontFamily" 
+							height="22" width="150" 
+							selectedIndex="0"
+							contentBackgroundAlpha="0.6"
+							skinClass="com.supermap.skins.customSkins.DropDownListTextSkin">
+				<s:ArrayList>
+					<fx:String>黑体</fx:String>
+					<fx:String>宋体</fx:String>
+					<fx:String>微软雅黑</fx:String>
+					<fx:String>仿宋</fx:String>
+				</s:ArrayList>
+			</s:DropDownList>
+		</s:HGroup>
+	</customSkins:ContentContainer>
+	
+	<s:SkinnableContainer  width="100%">
+		<s:HGroup  right="10" paddingRight="10" paddingBottom="1" paddingTop="10">
+			<s:Button id="drawBtn" label="绘制"  width="60" height="25" click="drawBtn_clickHandler(event)" />
+			<s:Button id="clear" label="清除" width="60" height="25" click="clear_clickHandler(event)" />
+		</s:HGroup>
+	</s:SkinnableContainer>
+	
+</containers:LayoutContainer>

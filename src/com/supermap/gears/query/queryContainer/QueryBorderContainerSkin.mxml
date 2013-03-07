@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/////////////////////////////////////////////////////////////////////////////////////////////
+//
+//	Copyright (c) 2013 SuperMap. All Rights Reserved.
+//
+//	Licensed under the Apache License, Version 2.0 (the "License");
+//	you may not use this file except in compliance with the License.
+//	You may obtain a copy of the License at
+//
+//	http://www.apache.org/licenses/LICENSE-2.0
+//
+//	Unless required by applicable law or agreed to in writing, software
+//	distributed under the License is distributed on an  "AS IS" BASIS,
+//	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//	See the License for the specific language governing permissions and
+//	limitations under the License.
+//
+///////////////////////////////////////////////////////////////////////////////////////////// 
+-->
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark" 
+    xmlns:fb="http://ns.adobe.com/flashbuilder/2009" alpha.disabled="0.5">
+
+    <fx:Metadata>
+    <![CDATA[
+        [HostComponent("com.supermap.gears.query.queryContainer.QueryItemContainer")]
+    ]]>
+    </fx:Metadata> 
+    
+    <s:states>
+        <s:State name="normal" />
+        <s:State name="disabled" />
+		<s:State name="over" />
+		<s:State name="down" />
+    </s:states>
+
+	<s:Rect id="fill" width="100%" height="100%" radiusX="5.00053" radiusY="5.00053" >
+		<s:fill>
+			<s:SolidColor color="#FFFFFF"/>
+		</s:fill>
+		<s:stroke>
+			<s:SolidColorStroke  color="0"  alpha="0.3"/>
+		</s:stroke>
+	</s:Rect>
+	
+	<s:Path  x="0.100586"   data="M0 4 460.799 4C460.335 1.71777 458.318 0 455.899 0L4.89941 0C2.48047 0 0.463867 1.71777 0 4Z">
+		<s:fill>
+			<s:SolidColor color="{hostComponent.headerColor}"/>
+		</s:fill>
+	</s:Path>
+	
+	<s:CheckBox id="checkBox" left="20" verticalCenter="0" skinClass="com.supermap.gears.query.queryContainer.CheckBoxSkin" />
+	
+	<s:Label id="title" text="{hostComponent.title}" fontSize="16" fontFamily="微软雅黑" fontWeight="bold" verticalCenter="2" horizontalCenter="-150"/>
+	
+	<s:Label id="content" text="{hostComponent.content}" fontSize="12" fontFamily="微软雅黑" bottom="5" horizontalCenter="50"/>
+	
+	<s:Group id="contentGroup" left="0" right="0" top="0" bottom="0" minWidth="0" minHeight="0">
+        <s:layout>
+            <s:BasicLayout/>
+        </s:layout>	
+    </s:Group>
+
+</s:Skin>

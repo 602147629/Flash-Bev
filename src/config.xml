@@ -1,0 +1,13 @@
+﻿<?xml version="1.0"?>
+<configuration>
+
+	<BaseComponent includeIn="LayoutContainer">
+	</BaseComponent>
+
+	<BaseGear includeIn="GearContainer">
+	</BaseGear>
+
+	<GearTemplate includeIn="TemplateContainer">
+	</GearTemplate>
+
+</configuration>

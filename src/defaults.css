@@ -1,0 +1,163 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+@namespace dock "com.supermap.framework.dock.*";
+@namespace panel "com.supermap.containers.*";
+@namespace supermap "http://www.supermap.com/iclient/2010";
+@namespace components "com.supermap.framework.components.*";
+@namespace queryGear "com.supermap.gears.accordionGears.queryGear.*";
+
+
+panel|QueryPanel
+{
+	skinClass: ClassReference("com.supermap.framework.skins.FloatPanelSkin");
+}
+
+dock|DockBarComponent
+{
+	skinClass: ClassReference("com.supermap.framework.skins.DockBarComponentSkin");
+}
+
+dock|ToolTipContainer
+{
+	skinClass:ClassReference("com.supermap.framework.skins.ToolTipBarSkin");
+}
+
+panel|MapPanel
+{
+	titleBarUpColor:#333333;
+	titleBarDownColor:#C9C9C9;
+	skinClass:ClassReference("com.supermap.skins.customSkins.MapPanelSkin");
+}
+
+panel|StylePanel
+{
+	skinClass:ClassReference("com.supermap.skins.customSkins.StylePanelSkin");
+}
+
+components|BaseGear
+{
+	contentBackgroundColor:#0678ce;
+}
+
+mx|TabNavigator{
+	
+	tabHeight:30;	
+	tabWidth:80;	
+	paddingTop:0;	
+	paddingLeft:0;	
+	paddingRight:0;	
+	horizontalGap:2;	
+	tabStyleName:"myTab";	
+	firstTabStyleName:"myTab";	
+	lastTabStyleName: "myTab";	
+	selectedTabTextStyleName: "selectedTabTextStyle";
+	borderVisible:true;	
+}
+
+.selectedTabTextStyle
+{
+	color : #000000;
+}
+
+queryGear|queryItemContainer
+{
+	backgroundColor:#0678ce;
+}
+
+s|CheckBox
+{
+	fontFamily:"微软雅黑";
+}
+
+.myTab{	
+	backgroundColor:#0678ce;
+	fontFamily:宋体;	
+	fontSize:13;	
+	fontWeight:bold;
+	color:#ffffff;
+	up-skin:ClassReference("com.supermap.framework.skins.TabNavigatorTabSkin");	
+	down-skin:ClassReference("com.supermap.framework.skins.TabNavigatorTabSkin");	
+	over-skin:ClassReference("com.supermap.framework.skins.TabNavigatorTabSkin");	
+	disabled-skin:ClassReference("com.supermap.framework.skins.TabNavigatorTabSkin");	
+	selected-up-skin:ClassReference("com.supermap.framework.skins.TabNavigatorTabSelectedSkin");	
+	selected-down-skin:ClassReference("com.supermap.framework.skins.TabNavigatorTabSelectedSkin");	
+	selected-over-skin:ClassReference("com.supermap.framework.skins.TabNavigatorTabSelectedSkin");	
+	selected-disabled-skin:ClassReference("com.supermap.framework.skins.TabNavigatorTabSelectedSkin");
+}
+
+supermap|InfoWindow
+{
+	backgroundAlpha:0.6;
+	shadowAngle:45;
+	shadowAlpha:0.4;
+	shadowDistance:20;
+	borderStyle:solid;
+	borderColor:#ffffff;
+	borderThickness:1;
+}
+
+supermap|Compass
+{
+	backgroundColor:#0678ce;	
+}
+
+supermap|ZoomSlider
+{
+	backgroundColor:#0678ce;	
+}
+
+mx|ToolTip
+{
+	background-color: #000000;
+	background-alpha: 0.6;
+	font-family: 微软雅黑;
+	font-weight: bold;
+	color: #FFFFFF;
+	font-size: 12;
+}
+
+mx|Alert{
+	borderColor: white;
+	backgroundColor: black;
+	backgroundAlpha:0.4;
+	dropShadowVisible: true;
+/*	chromeColor: red;*/
+	titleStyleName: alertTitle;
+	messageStyleName: alertMessage;
+	buttonStyleName: alertButton;
+	
+}
+
+.alertTitle{
+	fontSize: 20;
+	fontWeight: bold;
+	color: #FFFFFF;
+	backgroundColor:black;
+	backgroundAlpha:0.5;
+}
+
+.alertMessage {
+	fontWeight: bold;
+	color: #FFFFFF;
+}
+
+.alertButton {
+	color: #FFFFFF;
+	backgroundColor:black;
+	
+}
+
+.verticalScrollBarStyleName
+{
+	
+	thumb-skin:ClassReference("com.supermap.framework.skins.scrollBarSkins.ScrollBarThumb_V_skin");
+	track-skin:ClassReference("com.supermap.framework.skins.scrollBarSkins.ScrollBarTrack_DG_skin");
+	up-arrow-skin:ClassReference("com.supermap.framework.skins.scrollBarSkins.ScrollBarUpButton_V_skin");/*朝下箭头样式*/
+	down-arrow-skin:ClassReference("com.supermap.framework.skins.scrollBarSkins.ScrollBarUpButton_V_skin");/*朝上箭头样式*/			
+}
+
+s|TextInput
+{
+	color:#000000;
+}

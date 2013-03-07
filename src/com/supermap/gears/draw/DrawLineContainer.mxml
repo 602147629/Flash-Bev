@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/////////////////////////////////////////////////////////////////////////////////////////////
+//
+//	Copyright (c) 2013 SuperMap. All Rights Reserved.
+//
+//	Licensed under the Apache License, Version 2.0 (the "License");
+//	you may not use this file except in compliance with the License.
+//	You may obtain a copy of the License at
+//
+//	http://www.apache.org/licenses/LICENSE-2.0
+//
+//	Unless required by applicable law or agreed to in writing, software
+//	distributed under the License is distributed on an  "AS IS" BASIS,
+//	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//	See the License for the specific language governing permissions and
+//	limitations under the License.
+//
+///////////////////////////////////////////////////////////////////////////////////////////// 
+-->
+<containers:LayoutContainer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+							xmlns:s="library://ns.adobe.com/flex/spark" 
+							xmlns:mx="library://ns.adobe.com/flex/mx" 
+							xmlns:containers="com.supermap.containers.*" 
+							xmlns:customSkins="com.supermap.skins.customSkins.*"
+							width="100%"
+							creationComplete="layoutcontainer1_creationCompleteHandler(event)">
+
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			protected function drawBtn_clickHandler(event:MouseEvent):void
+			{
+				var vo:Object = {
+						drawFreeLine:pointBoderVisible.selected,
+						lineColor:lineColor.selectedColor,
+						lineWidth:lineWidth.value,
+						lineType:lineType.selectedItem,
+						capType:capType.selectedItem
+				};
+				
+				DrawUtil.drawLineFeature(vo, map);
+			}
+			
+			protected function clear_clickHandler(event:MouseEvent):void
+			{
+				DrawUtil.clear();
+			}
+			
+			protected function layoutcontainer1_creationCompleteHandler(event:FlexEvent):void
+			{
+				DrawUtil.map = map;
+				DrawUtil.setFeaturesLayer();
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<!--布局设置-->
+	<containers:layout>
+		<s:VerticalLayout gap="5" paddingTop="15" paddingLeft="15" paddingRight="15" />
+	</containers:layout>
+	
+	<customSkins:ContentContainer width="100%" skinClass="com.supermap.skins.customSkins.CustomContentContainerSkin">
+		<s:CheckBox label="自由线(可勾选)" height="25" id="pointBoderVisible" skinClass="com.supermap.gears.query.queryContainer.CheckBoxSkin"
+					/>
+	</customSkins:ContentContainer>
+	
+	<customSkins:ContentContainer width="100%" skinClass="com.supermap.skins.customSkins.CustomContentContainerSkin">
+		
+		<customSkins:layout>
+			<s:HorizontalLayout gap="15" paddingTop="10" paddingBottom="10" paddingLeft="15"/>
+		</customSkins:layout>
+		
+		<s:HGroup gap="10" verticalCenter="0" verticalAlign="middle">
+			<mx:ColorPicker id="lineColor" width="50" height="15" selectedColor="0x00FF00" />
+			<s:Label text="颜色" fontFamily="微软雅黑"   color="0"/>
+		</s:HGroup>
+		
+	</customSkins:ContentContainer>
+	
+	<customSkins:ContentContainer width="100%" skinClass="com.supermap.skins.customSkins.CustomContentContainerSkin">
+		<s:Label text="线宽：" fontFamily="微软雅黑" verticalAlign="middle" height="22"  color="0"/>
+		<s:HGroup paddingBottom="20">
+			<s:HSlider id="lineWidth" liveDragging="true" skinClass="com.supermap.skins.sliderSkins.HSliderSkin" maximum="50" 
+					   focusEnabled="false" minimum="0"
+					   snapInterval="1" value="2" width="150" />
+		</s:HGroup>
+	</customSkins:ContentContainer>
+	
+	<customSkins:ContentContainer width="100%" skinClass="com.supermap.skins.customSkins.CustomContentContainerSkin">
+		
+		<customSkins:layout>
+			<s:HorizontalLayout gap="30" paddingTop="10" paddingBottom="10" paddingLeft="15"/>
+		</customSkins:layout>
+		
+		<s:VGroup>
+			<s:Label text="线型" fontFamily="微软雅黑" height="22" verticalAlign="middle" color="0"/>
+			<s:HGroup verticalCenter="0" verticalAlign="middle">
+				<s:DropDownList id="lineType"
+								selectedIndex="0" height="22" width="150" 
+								contentBackgroundColor="0"
+								contentBackgroundAlpha="0.6"
+								skinClass="com.supermap.skins.customSkins.DropDownListBlackSkin"
+								itemRenderer="spark.skins.spark.DefaultComplexItemRenderer" 
+								>
+					<s:dataProvider>
+						<s:ArrayList>
+							<mx:Image source="@Embed('assets/features/solid.png')" id="Solid"/>
+							<mx:Image source="@Embed('assets/features/dash.png')" id="Dash"/>
+							<mx:Image source="@Embed('assets/features/dot.png')" id="Dot"/>
+							<mx:Image source="@Embed('assets/features/dashdot.png')" id="Dashdot"/>
+							<mx:Image source="@Embed('assets/features/dashdotdot.png')" id="Dashdotdot"/>
+						</s:ArrayList>
+					</s:dataProvider>
+				</s:DropDownList>
+			</s:HGroup>
+		</s:VGroup>
+		
+		<s:VGroup>
+			<s:Label text="端点类型" fontFamily="微软雅黑" height="22" verticalAlign="middle" color="0"/>
+			<s:HGroup verticalCenter="0" verticalAlign="middle">
+				<s:DropDownList id="capType" selectedIndex="0"
+								height="22" width="150" 
+								contentBackgroundColor="0"
+								contentBackgroundAlpha="0.6"
+								skinClass="com.supermap.skins.customSkins.DropDownListBlackSkin"
+								itemRenderer="spark.skins.spark.DefaultComplexItemRenderer" 
+								>
+					<s:dataProvider>
+						<s:ArrayList>
+							<mx:Image  left="10" source="@Embed('assets/features/roundvertex.png')" id="round"/>
+							<mx:Image  left="10" source="@Embed('assets/features/squarevertex.png')" id="SQUare"/>
+						</s:ArrayList>
+					</s:dataProvider>
+				</s:DropDownList>
+			</s:HGroup>
+		</s:VGroup>		
+	</customSkins:ContentContainer>
+	
+	<s:SkinnableContainer  width="100%">
+		<s:HGroup  right="10" paddingRight="10" paddingBottom="1" paddingTop="10">
+			<s:Button id="drawBtn" label="绘制"  width="60" height="25" click="drawBtn_clickHandler(event)" />
+			<s:Button id="clear" label="清除" width="60" height="25" click="clear_clickHandler(event)" />
+		</s:HGroup>
+	</s:SkinnableContainer>
+	
+</containers:LayoutContainer>

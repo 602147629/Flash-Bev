@@ -1,0 +1,457 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/////////////////////////////////////////////////////////////////////////////////////////////
+//
+//	Copyright (c) 2013 SuperMap. All Rights Reserved.
+//
+//	Licensed under the Apache License, Version 2.0 (the "License");
+//	you may not use this file except in compliance with the License.
+//	You may obtain a copy of the License at
+//
+//	http://www.apache.org/licenses/LICENSE-2.0
+//
+//	Unless required by applicable law or agreed to in writing, software
+//	distributed under the License is distributed on an  "AS IS" BASIS,
+//	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//	See the License for the specific language governing permissions and
+//	limitations under the License.
+//
+///////////////////////////////////////////////////////////////////////////////////////////// 
+-->
+<s:HGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  xmlns:supermap="http://www.supermap.com/iclient/2010" 
+		  creationComplete="hgroup1_creationCompleteHandler(event)" 
+		  xmlns:print="com.supermap.gears.print.*" 
+		  xmlns:supermap1="http://www.supermap.com/gear/2010"
+		  >
+	
+	<fx:Declarations>		
+		<s:Fade id="fade" target="{printFinalContent}" alphaTo="1"/> 		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.supermap.containers.LayoutContainer;
+			import com.supermap.web.actions.DrawRectangle;
+			import com.supermap.web.core.Rectangle2D;
+			import com.supermap.web.mapping.CloudLayer;
+			import com.supermap.web.mapping.Map;
+			
+			import deng.fzip.FZip;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
+			import mx.controls.Alert;
+			import mx.controls.Image;
+			import mx.events.FlexEvent;
+			import mx.graphics.ImageSnapshot;
+			import mx.graphics.codec.IImageEncoder;
+			import mx.graphics.codec.PNGEncoder;
+			import mx.printing.FlexPrintJob;
+			import mx.printing.FlexPrintJobScaleType;
+			
+			import spark.components.Group;
+			private var drawRectangle:DrawRectangle;
+			private var _map:Map;
+			private var _layerIds:Array;
+			[Bindable]
+			private var restUrl:String;
+			[Bindable]
+			private var _printBonds:Rectangle2D;
+			[Bindable]
+			private var printEntirePictureSrc:Bitmap;
+			[Bindable]
+			private var printEntirePictureWth:Number;
+			[Bindable]
+			private var printEntirePictureHth:Number;
+			[Bindable]
+			private var currentYear:Number;
+			[Bindable]
+			private var currentMonth:Number;
+			[Bindable]
+			private var currentDay:Number;
+			[Bindable]
+			private var printWth:Number = 0;
+			[Bindable]
+			private var printHth:Number = 0;
+			[Bindable]
+			private var initialScale:Number;
+			
+			[Bindable]
+			private var scalesData:ArrayList;
+			
+			private var _layoutContainer:LayoutContainer;
+			
+			public function get layoutContainer():LayoutContainer
+			{
+				return _layoutContainer;
+			}
+
+			public function set layoutContainer(value:LayoutContainer):void
+			{
+				_layoutContainer = value;
+			}
+
+			private function formatValueNum(value:Number):String
+			{
+				return value.toFixed(2);
+			}
+			
+			public function get layerIds():Array
+			{
+				return _layerIds;
+			}
+
+			public function set layerIds(value:Array):void
+			{
+				_layerIds = value;
+			}
+
+			[Bindable]
+			public function get printBonds():Rectangle2D
+			{
+				return _printBonds;
+			}
+
+			public function set printBonds(value:Rectangle2D):void
+			{
+				_printBonds = value;
+			}
+			
+			[Bindable]
+			public function get map():Map
+			{
+				return _map;
+			}
+			
+			public function set map(value:Map):void
+			{
+				_map = value;
+				if(_map && map.layers[0] is CloudLayer)
+				{
+					var cloudLayer:CloudLayer = map.layers[0];
+					var res:Number = Number(map.resolution.toFixed(7));
+					var index:int = cloudLayer.resolutions.indexOf(res);
+					initialScale = cloudLayer.resolutions[10];
+					scalesData = new ArrayList();
+					scalesData.source = cloudLayer.resolutions;
+					mapScales.dataProvider = scalesData;
+					mapScales.selectedIndex = 10;
+					//map.resolutions = cloudLayer.resolutions;
+				}
+				else
+				{
+					//other layer
+				}
+				pintUtilCreateComplete();
+			}
+			
+			private function pintUtilCreateComplete():void
+			{
+				if(map.layers[0] is CloudLayer){
+					_printUtil.makeMapBitmapData(map,(map.layers[0] as CloudLayer).resolutions[mapScales.selectedIndex], map.viewBounds);
+					var data:Date = new Date();
+					currentYear = data.fullYear;
+					currentMonth = data.month;
+					currentDay = data.date;
+				}
+			}
+			
+			/**
+			 *  预览
+			 */
+			protected function previewClickHandler(event:MouseEvent):void
+			{
+				_printUtil.addEventListener(MapPrintContainer.PRINT_PREPARE_COMPLETE, getWH);
+				var rec:Rectangle2D = null;
+				printBonds = new Rectangle2D(x1.value,y2.value,x2.value,y1.value);
+				pintUtilCreateComplete();
+			}
+			
+			private function getWH(event:Event):void
+			{
+				printWth = scrollerWindow.viewport.contentWidth;
+				//printHth = scrollerWindow.viewport.contentHeight;
+			}
+			
+			/**
+			 *  打印
+			 */
+			protected function print_clickHandler(event:MouseEvent):void
+			{
+				getPrintBitmapData();
+				bitmapData();
+				if(this.images.length==1)
+				{
+					var printObj:FlexPrintJob = new FlexPrintJob();
+					//按位图或者矢量格式进行打印
+					printObj.printAsBitmap = true;
+					if (printObj.start())
+					{
+						try
+						{		
+							parentContent.addElement(images[0]);
+							printObj.addObject(images[0], FlexPrintJobScaleType.NONE);
+						}
+						catch (error:Error)
+						{
+							Alert.show(error.toString());
+						}
+						printObj.send(); 
+						parentContent.removeElement(images[0]);
+					}
+				}
+				else if(this.images.length >1)
+				{
+					var file:FileReference = new FileReference();
+					var arrCo:ArrayCollection = new ArrayCollection();
+					var imageCoder:IImageEncoder;
+					imageCoder = new PNGEncoder();
+					for each(var arr:Array in vArr)
+					{
+						var arr2:Array = new Array();
+						for each(var bitData:BitmapData in arr)
+						{
+							var imageSnapshot:ImageSnapshot = ImageSnapshot.captureImage(new Bitmap(bitData), 0, imageCoder);
+							arr2.push(imageSnapshot.data);
+						}
+						arrCo.addItem(arr2);
+					}
+					exportPictureFileReference(arrCo,file,"printImages.zip");
+				}
+			}
+			
+			private function exportPictureFileReference(datas:ArrayCollection, file:FileReference,defaultFileName:String):void{
+				
+				file.addEventListener(Event.COMPLETE,function(evt:Event):void{
+					Alert.show("导出完毕!");
+				});
+				var zip:FZip=new FZip();    //创建zip文档
+				var datas1:ByteArray=new ByteArray();
+				var fileName:String;
+				for(var n:int = 0; n<datas.length; n++)
+				{
+					var arr:Array = datas[n];
+					for(var m:int = 0; m<arr.length; m++)
+					{
+						fileName = n + "_" + m + ".png";
+						zip.addFile(fileName,arr[m]);  
+					}
+				}
+				zip.serialize(datas1);      //序列化zip文档
+				file.save(datas1,defaultFileName);    //保存zip文档
+			}
+			
+			private var _viewWidth:Number;
+			private var _viewHeight:Number;
+			private var _result:Array;
+			private var _bitmapSize:Number = 2880;
+			private var printWidth:Number;
+			private var printHeight:Number;
+			private var _tileSize:int = 512;
+			/**
+			 *  截图
+			 */
+			public function getPrintBitmapData():void
+			{
+				_viewWidth = printFinalContent.width;
+				_viewHeight = printFinalContent.height;
+				_result = new Array;
+				var col:int = Math.ceil(_viewWidth/_bitmapSize);
+				var row:int = Math.ceil(_viewHeight/_bitmapSize);
+				var x:Number = 0;
+				var y:Number = 0;
+				parentContent.width = _tileSize;
+				parentContent.height = _tileSize;
+				
+				for(var i:int = 0; i < row; i++)
+				{
+					var rowArr:Array = new Array;
+					y = i * _bitmapSize;
+					parentContent.height = (i + 1)*_bitmapSize > _viewHeight ? _viewHeight - i * _bitmapSize:_bitmapSize ;
+					for(var j:int = 0; j < col; j++)
+					{
+						x = j*_bitmapSize;
+						printFinalContent.x = -x;
+						printFinalContent.y = -y;
+						parentContent.width = (j + 1)*_bitmapSize > _viewWidth ? _viewWidth - j * _bitmapSize :_bitmapSize;
+						
+						var bitMap:BitmapData = ImageSnapshot.captureBitmapData(parentContent,null,null,null,
+							new Rectangle(0,0,parentContent.width,parentContent.height));
+						rowArr.push(bitMap);//每行
+					}
+					_result.push(rowArr);//存储所有行
+				}
+				
+				printFinalContent.x = 0;
+				printFinalContent.y = 0;
+				parentContent.width = undefined;
+				parentContent.height = undefined;
+				//this.dispatchEvent(new Event(MAP_BITMAP_CLIP_COMPLETE));
+			}
+			
+			private var images:Array = new Array;
+			private var vArr:Array;
+			/**
+			 *  生成图片
+			 */
+			private function bitmapData():void
+			{
+				var vGroup:VGroup = new VGroup();
+				vGroup.gap = 0;
+				vArr = null;
+				images = null;
+				vArr = new Array();
+				images = new Array();
+				for each(var arr:Array in _result)
+				{
+					var hGroup:HGroup = new HGroup();
+					hGroup.gap = 0;
+					var hArr:Array = new Array();
+					for each(var bitmapData:BitmapData in arr)
+					{
+						var image:Image = new Image();
+						image.source = new Bitmap(bitmapData);
+						hGroup.addElement(image);
+						images.push(image);
+						hArr.push(bitmapData);
+					}
+					vGroup.addElement(hGroup);
+					vArr.push(hArr);
+				}
+			}
+			
+			/**
+			 *  将具有地图坐标的矩形 Rectangle2D 转换为具有像素坐标的矩形 Rectangle
+			 */
+			private function rect2DToRect(rect2D:Rectangle2D):Rectangle
+			{
+				var bottomLeft:Point = this.map.mapToScreen(rect2D.bottomLeft);
+				var topRight:Point = this.map.mapToScreen(rect2D.topRight);
+				var rectWidth:Number = topRight.x - bottomLeft.x;
+				var rectHeight:Number = bottomLeft.y - topRight.y;
+				return new Rectangle(bottomLeft.x, topRight.y, rectWidth, rectHeight);
+			}
+			
+			/**
+			 *  缩略图与group之间的切换
+			 */
+			protected function button2_clickHandler(event:MouseEvent):void
+			{
+				var bitMapDate:BitmapData = ImageSnapshot.captureBitmapData(printFinalContent,null,null,null,
+					new Rectangle(0,0,printFinalContent.width,printFinalContent.height));
+				var bitMap:Bitmap =  new Bitmap(bitMapDate);
+				printEntirePictureSrc = bitMap;
+				printEntirePictureWth = bitMap.width > scrollerWindow.width ? scrollerWindow.width : bitMap.width;
+				printEntirePictureHth = bitMap.height > scrollerWindow.height ? scrollerWindow.height : bitMap.height;
+			}
+
+			protected function hgroup1_creationCompleteHandler(event:FlexEvent):void
+			{
+				this.addEventListener("WindowClosed",windowClosedHandler);
+			}
+			
+			private function windowClosedHandler(event:Event):void
+			{
+				if(printFinalContent)
+					printFinalContent.alpha = 0;
+				printWth = 0;
+				printHth = 0;
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<!--左侧部分-->
+	<s:Group id="leftGroup" height="100%" width="20%">
+		<s:layout>
+			<s:VerticalLayout gap = "10"/>
+		</s:layout>
+		<s:VGroup gap="7" width="100%">
+			<mx:FormHeading label="常规设置"/>
+			<mx:Form paddingTop="0" paddingBottom="0" verticalGap="5" width="100%">
+				<mx:FormItem direction="horizontal">
+					<s:Label text="图名：" verticalAlign="middle" height="22"/>
+					<s:TextInput text="北京地图"  toolTip="{printName.text}"  id="printName" width="100%"/>
+				</mx:FormItem>
+				<mx:FormItem direction="horizontal">
+					<s:Label text="单位：" height="22" verticalAlign="middle"/>
+					<s:TextInput text="北京超图软件股份有限公司"  id="companyName" width="100%" toolTip="{companyName.text}"/>
+				</mx:FormItem>
+				<mx:FormItem direction="horizontal">
+					<s:Label text="日期：" height="22" verticalAlign="middle"/>
+					<mx:DateField id="printDate"  formatString="YYYY/MM/DD" selectedDate="{new Date()}" width="130" />
+				</mx:FormItem>
+			</mx:Form>
+			<print:HorizontalRule id="test" width="100%" horizontalCenter="0"/>
+			<mx:FormHeading label="打印范围"/>
+			<mx:Form paddingTop="0" paddingBottom="0" verticalGap="5" width="100%">
+				<mx:FormHeading label="打印尺寸（像素）："/>
+				<mx:FormItem direction="vertical" horizontalAlign="center" width="100%">
+					<s:TextInput id="printSize"  editable="false" text="{printWth.toString() + &quot;,&quot; +printHth.toString()}" width="70%"/>
+				</mx:FormItem>
+				<mx:FormHeading label="地理范围："/>
+				<mx:FormItem direction="vertical">
+					<s:VGroup gap="2">
+						<s:HGroup gap="2">
+							<s:Label text="X1:" width="20" verticalAlign="middle" verticalCenter="-2" height="100%"/>
+							<s:NumericStepper id="x1" toolTip="{x1.value.toString()}" value="{printBonds.left}" snapInterval="1" width="70"  valueFormatFunction="formatValueNum" minimum="-1E+15" maximum="1E+15"/>
+							<s:Label text="Y1:" width="20" verticalAlign="middle" verticalCenter="-2" height="100%"/>
+							<s:NumericStepper id="y1" toolTip="{y1.value.toString()}" value="{printBonds.top}" snapInterval="1" width="70"  valueFormatFunction="formatValueNum" minimum="-1E+15" maximum="1E+15"/>
+						</s:HGroup>
+						<s:HGroup gap="2">
+							<s:Label text="X2:" width="20" verticalAlign="middle" verticalCenter="-2" height="100%"/>
+							<s:NumericStepper id="x2" toolTip="{x2.value.toString()}" value="{printBonds.right}" snapInterval="1" width="70"  valueFormatFunction="formatValueNum" minimum="-1E+15" maximum="1E+15"/>
+							<s:Label text="Y2:" width="20" verticalAlign="middle" verticalCenter="-2" height="100%"/>
+							<s:NumericStepper id="y2" toolTip="{y2.value.toString()}" value="{printBonds.bottom}" snapInterval="1" width="70"  valueFormatFunction="formatValueNum" minimum="-1E+15" maximum="1E+15"/>
+						</s:HGroup>
+					</s:VGroup>
+				</mx:FormItem>
+			</mx:Form>
+			<print:HorizontalRule width="100%" horizontalCenter="0"/>
+			<s:SkinnableContainer >
+				<s:layout>
+					<s:VerticalLayout paddingLeft="20"/>
+				</s:layout>
+				<mx:FormHeading label="显示打印比例尺"/>
+				<s:DropDownList left="20"  id="mapScales" selectedIndex="0" width="120" height="30" 
+								 skinClass="com.supermap.skins.customSkins.DropDownListTextSkin"
+								/>
+				<s:Label  text="{&quot;当前显示比例尺  1:&quot; + mapScales.selectedItem.toString()}"/>
+			</s:SkinnableContainer>
+			
+			<print:HorizontalRule width="100%" horizontalCenter="0"/>
+		</s:VGroup>
+		
+		<s:HGroup width="100%" bottom="0" horizontalAlign="right" paddingRight="5">
+			<s:Button label="预览" width="50" height="30"   click="{previewClickHandler(event)}"/>
+			<s:Button label="打印" toolTip="提示：打印尺寸（宽/高）大于2880像素采用保存策略" width="50" height="30"  click="print_clickHandler(event)" />
+			<!--<s:Button label="全局"  width="50" height="30"  click="{button2_clickHandler(event)}" />-->
+		</s:HGroup>
+	</s:Group>
+	
+	<print:VerticalRule  height="100%"/>
+	
+	<!--右侧部分-->
+	<s:Scroller id="scrollerWindow" width="800" height="100%" >
+		<s:Group  id="parentContent" >
+			<s:HGroup id="printFinalContent"  verticalAlign="middle" >
+				<s:VGroup  horizontalAlign="center">
+					<s:Label id="labelName" text="{printName.text}"  fontSize="30" textAlign="center" fontWeight="bold" />
+					<supermap1:MapPrintContainer id="_printUtil" />
+					<s:Group  fontSize="15" fontWeight="bold" width="100%">
+						<s:Label text="{&quot;比例尺  1:&quot; + mapScales.selectedItem.toString()}" left="0" />
+						<s:HGroup right="0" gap="10">
+							<s:Label text="{currentYear + &quot;年&quot; + (currentMonth+1) + &quot;月&quot; + currentDay + &quot;日&quot;}" />
+							<s:Label text="{companyName.text}" />
+						</s:HGroup>
+					</s:Group>
+				</s:VGroup>
+			</s:HGroup>
+			<mx:Image id="printEntirePicture"  horizontalAlign="center" verticalAlign="middle" source="{printEntirePictureSrc}"  width="{printEntirePictureWth}" height="{printEntirePictureHth}"/>
+		</s:Group>
+	</s:Scroller>
+	
+</s:HGroup>
