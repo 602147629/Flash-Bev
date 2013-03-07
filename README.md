@@ -13,31 +13,38 @@ SuperMap Flex Bev是基于SuperMap iClient for Flex产品开发的一套支持�
 ### 三、产品特点
 
 1.基于配置的组件生成
+
   通过XML节点的形式，按照插件通信规则来建立节点，程序启动后会自动实例化插件。
 
 2.可浮动停靠的组件管理容器
+
   插件一般放置在组件管理容器---面板中。面板按照标签页---插件的方式进行管理。下图则展示了一个包含有四个标签页的面板。
   ![6d81800a19d8bc3e6400e4e4838ba61ea8d34590](http://f.hiphotos.baidu.com/album/s%3D1100%3Bq%3D90/sign=c4ea7ef28b13632711edc632a1bf9b9d/6d81800a19d8bc3e6400e4e4838ba61ea8d34590.jpg)
   上述面板中的标签页区域支持拖拽，停靠，锁定等操作。
   
 3.灵活易用的插件机制
+
   框架里的浮动面板FloatPanel用来承载业务逻辑组件，业务逻辑容器使用插件机制管理内部各个组件。如添加，移除，事件传递等常规操作。
   
 4.基于标签式的属性注入
+
   框架本身支持元数据标签Inject属性注入方式来定制开发。目前主要是针对基础组件(BaseComponent)与命令(Command)的属性注入。
   Inject属性注入的使用方式比较简便，在常规的变量声明上添加Inject元数据标签即可。如下面两行代码便是Inject属性注入的使用示例。
   [Inject]  
   public var qContainer:QueryContainer;
 
 5.事件总线
+
   框架本身还提供了一种集中处理事件监听与回调的机制——事件总线。它对应的主要逻辑对象是EventBus(BaseEventDispatcher)。
   在实现IPlugin接口的组件中，直接用EventBus即可。
   对于框架之外的组件，可以使用BaseEventDipatcher.getInstance()来达到同样的效果。
 
 6.兼容Flex Cairngrom框架内核
+
   框架内部已经集成了对Command(命令部分)的兼容处理，而Control(控制部分)也通过EventBus(事件总线)得以实现，熟悉这个特性的读者会很快熟悉SuperMap Flex Bev框架。
 
 7.Module模块以及可切换的统一模板
+
   Module是为了减小项目编译体积而使用的一种优化方案，该方案是为了设计出来相对独立的功能逻辑，然后编译为独立的SWF文件，当项目程序需要这部分功能时动态进行加载或卸载。通过这种方式可以优化程序结构，减少网络负载，改善用户体验。
   框架本身提供了BaseGear类(com.supermap.framework.components.BaseGear)与BaseTemplate类(com.supermap.framework.components.BaseTemplate)来实现单一的模块类以及具备统一样式的模板皮肤类。
 
