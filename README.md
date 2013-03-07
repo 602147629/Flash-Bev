@@ -52,7 +52,7 @@ SuperMap Flex Bev是基于SuperMap iClient for Flex产品开发的一套支持�
 ### 四、主要功能
 
 1.提供针对SuperMap CloudLayer云服务图层数据的查询插件(可选组件，预先不加载)
-  ![6d81800a19d8bc3e6400e4e4838ba61ea8d34590](http://f.hiphotos.baidu.com/album/s%3D1100%3Bq%3D90/sign=c4ea7ef28b13632711edc632a1bf9b9d/6d81800a19d8bc3e6400e4e4838ba61ea8d34590.jpg)
+  ![9c16fdfaaf51f3de00a4504a95eef01f3a29798e](http://e.hiphotos.baidu.com/album/s%3D1100%3Bq%3D90/sign=3233ea64dbb44aed5d4ebae5832cbc70/9c16fdfaaf51f3de00a4504a95eef01f3a29798e.jpg)
   
 2.提供书签，要素标绘插件(可选组件，预先加载)
 
