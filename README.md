@@ -68,6 +68,7 @@ SuperMap Flex Bev是基于SuperMap iClient for Flex产品开发的一套支持�
 ### 五、使用说明
 
 1.Flex-Bev工程下载后解压后得到Flex-Bev项目源代码，可直接导入到Flash Builder里编译运行。更加详细的使用步骤说明请参见"FlexBev2用户指导手册.pdf"。
+
 2.Flex-Bev工程里依赖的Flex-Bev-Lib库项目也是开源项目。需要深度定制框架可参考Flex-Bev-Lib库代码。
   Flex-Bev-Lib开源项目：https://github.com/SuperMap/Flex-Bev-Lib/
 
