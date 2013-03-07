@@ -20,6 +20,7 @@ SuperMap Flex Bev是基于SuperMap iClient for Flex产品开发的一套支持�
 
   插件一般放置在组件管理容器---面板中。面板按照标签页---插件的方式进行管理。下图则展示了一个包含有四个标签页的面板。
   ![6d81800a19d8bc3e6400e4e4838ba61ea8d34590](http://f.hiphotos.baidu.com/album/s%3D1100%3Bq%3D90/sign=c4ea7ef28b13632711edc632a1bf9b9d/6d81800a19d8bc3e6400e4e4838ba61ea8d34590.jpg)
+  
   上述面板中的标签页区域支持拖拽，停靠，锁定等操作。
   
 3.灵活易用的插件机制
@@ -50,20 +51,23 @@ SuperMap Flex Bev是基于SuperMap iClient for Flex产品开发的一套支持�
 
 ### 四、主要功能
 
-1.提供针对SuperMap CloudLayer云服务图层数据的查询插件
+1.提供针对SuperMap CloudLayer云服务图层数据的查询插件(可选组件，预先不加载)
+  ![6d81800a19d8bc3e6400e4e4838ba61ea8d34590](http://f.hiphotos.baidu.com/album/s%3D1100%3Bq%3D90/sign=c4ea7ef28b13632711edc632a1bf9b9d/6d81800a19d8bc3e6400e4e4838ba61ea8d34590.jpg)
+  
+2.提供书签，要素标绘插件(可选组件，预先加载)
 
-2.提供书签，要素标绘插件
+3.提供常用的打印插件(可选组件，预先加载)
+![4bed2e738bd4b31cc772709586d6277f9e2ff856](http://a.hiphotos.baidu.com/album/s%3D1100%3Bq%3D90/sign=8e684c08fcfaaf5180e385bebc64af9f/4bed2e738bd4b31cc772709586d6277f9e2ff856.jpg)
+ 
+4.提供地图导航条等功能插件(可选组件，预先加载)
 
-3.提供常用的打印插件
+5.微博接口与地图功能整合（实现中，后续提供）
+![d31b0ef41bd5ad6ed91580c480cb39dbb6fd3c2b](http://e.hiphotos.baidu.com/album/s%3D1100%3Bq%3D90/sign=21fc05342934349b70066a84f9da2ebf/d31b0ef41bd5ad6ed91580c480cb39dbb6fd3c2b.jpg)
 
-4.提供地图导航条等功能插件
-
-5.微博接口与地图功能整合（实现中）
-上图
 
 ### 五、使用说明
 
-提供了11个基础范例程序以及API扩展方式，详见"SuperMap_iClient_6R(2013)_for_Realspace(Flex)专题.docx"
+本工程下载后解压后得到Flex-Bev项目源代码，可直接导入到Flash Builder里编译运行。更加详细的使用步骤说明请参见""。
 
 ### 六、技术支持与服务
 
