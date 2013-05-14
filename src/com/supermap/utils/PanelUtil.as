@@ -22,6 +22,7 @@ package com.supermap.utils
 	import flash.events.MouseEvent;
 	
 	import mx.core.FlexGlobals;
+	import mx.core.IVisualElementContainer;
 	
 	import spark.components.Application;
 
@@ -38,6 +39,27 @@ package com.supermap.utils
 			{
 				app.addElementAt(fp, app.numElements - 1);
 			}
+		}
+		
+		/**
+		 *  从全局目录里获取某一个面板引用对象
+		 *  @param panelID 面板对象的id
+		 *  @return Object 返回面板对象
+		 *  2013.5.14
+		 */
+		public static function getPanelByID(panelID:String):Object
+		{
+			var app:IVisualElementContainer = IVisualElementContainer(FlexGlobals.topLevelApplication);	
+			var childNum:int = app.numElements;
+			for(var i:int = 0; i < childNum; i++)
+			{
+				var element:Object = app.getElementAt(i);
+				if(element.id == panelID)
+				{
+					return element;
+				}
+			}
+			return null;
 		}
 	}
 }
