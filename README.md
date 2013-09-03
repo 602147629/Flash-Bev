@@ -1,6 +1,6 @@
-﻿### 一、Flex-Bev框架简介
+﻿### 一、Flash-Bev框架简介
 
-SuperMap Flex Bev是基于SuperMap iClient for Flex产品开发的一套支持用户自定义扩展功能集成显示框架，该框架具备可定制，可装卸，配置方便，界面美等特点，主要面向二次开发用户以及快速制作原型系统的人员。
+SuperMap Flash Bev是基于SuperMap iClient for Flash产品开发的一套支持用户自定义扩展功能集成显示框架，该框架具备可定制，可装卸，配置方便，界面美等特点，主要面向二次开发用户以及快速制作原型系统的人员。
 ![b17eca8065380cd7065146c3a044ad3459828155](http://h.hiphotos.baidu.com/album/s%3D1100%3Bq%3D90/sign=ecfb4f4f0eb30f24319ae802f8a5ea32/b17eca8065380cd7065146c3a044ad3459828155.jpg)
 演示地址：http://support.supermap.com.cn:8090/DemoCenter/SuperMap.iClient.Flex.Sample/FlexBev2/index.html
 
@@ -42,7 +42,7 @@ SuperMap Flex Bev是基于SuperMap iClient for Flex产品开发的一套支持�
 
 6.兼容Flex Cairngrom框架内核
 
-  框架内部已经集成了对Command(命令部分)的兼容处理，而Control(控制部分)也通过EventBus(事件总线)得以实现，熟悉这个特性的读者会很快熟悉SuperMap Flex Bev框架。
+  框架内部已经集成了对Command(命令部分)的兼容处理，而Control(控制部分)也通过EventBus(事件总线)得以实现，熟悉这个特性的读者会很快熟悉SuperMap Flash Bev框架。
 
 7.Module模块以及可切换的统一模板
 
@@ -67,10 +67,10 @@ SuperMap Flex Bev是基于SuperMap iClient for Flex产品开发的一套支持�
 
 ### 五、使用说明
 
-1.Flex-Bev工程下载后解压后得到Flex-Bev项目源代码，可直接导入到Flash Builder里编译运行。更加详细的使用步骤说明请参见"FlexBev2用户指导手册.pdf"。
+1.Flash-Bev工程下载后解压后得到Flash-Bev项目源代码，可直接导入到Flash Builder里编译运行。更加详细的使用步骤说明请参见"FlashBev2用户指导手册.pdf"。
 
-2.Flex-Bev工程里依赖的Flex-Bev-Lib库项目也是开源项目。需要深度定制框架可参考Flex-Bev-Lib库代码。
-  Flex-Bev-Lib开源项目：https://github.com/SuperMap/Flex-Bev-Lib/
+2.Flash-Bev工程里依赖的Flash-Bev-Lib库项目也是开源项目。需要深度定制框架可参考Flash-Bev-Lib库代码。
+  Flash-Bev-Lib开源项目：https://github.com/SuperMap/Flash-Bev-Lib/
 
 ### 六、技术支持与服务
 
